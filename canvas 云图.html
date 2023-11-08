@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>canvas 云图</title>
+    <style>
+      body {
+        box-sizing: border-box;
+        padding: 0;
+        margin: 0;
+      }
+      canvas {
+        border: 1px solid black;
+      }
+    </style>
+  </head>
+
+  <body>
+    <canvas id="cloudCanvas" width="400" height="400"></canvas>
+
+    <script>
+      // 获取 Canvas 元素
+      const canvas = document.getElementById("cloudCanvas");
+      const ctx = canvas.getContext("2d");
+      const width = canvas.width;
+      const height = canvas.height;
+
+      // 定义云图内的文字
+      const texts = ["你好", "世界", "云", "文本", "速递 Express"];
+
+      // 随机生成文字的位置和样式
+      for (let i = 0; i < width; i += 20) {
+        let content = texts[Math.floor(Math.random() * 5)];
+        let fontSize = Math.random() * 50 + 10;
+        for (let j = 0; j < height; j += fontSize) {
+          if (!checkHasContent(i, j, fontSize, fontSize)) {
+            const w = checkContentSize(i, j);
+            if (w > 0) {
+              if (fontSize > w / content.length) {
+                fontSize = w / content.length;
+              }
+              if (fontSize < 10) {
+                fontSize = 10;
+              }
+              fontSize = fontSize >= 100 ? 100 : fontSize;
+              const textColor = `rgb(${Math.random() * 256}, ${
+                Math.random() * 256
+              }, ${Math.random() * 256})`;
+              ctx.font = `${fontSize}px Arial`;
+
+              ctx.fillStyle = textColor;
+              ctx.textWidth = Math.random() * 500 + 400;
+
+              const x = i;
+              const y = j;
+              // console.log("文字大小：", fontSize, content);
+              ctx.fillText(content, x, y + fontSize);
+              fontSize = Math.random() * 50 + 10;
+              content = texts[Math.floor(Math.random() * 5)];
+            }
+          }
+        }
+      }
+
+      // 判断区域是否有内容
+      function checkHasContent(x, y, width, height) {
+        // 获取区域的像素数据
+        const imageData = ctx.getImageData(x, y, width, height);
+        const data = imageData.data;
+
+        // 遍历区域的像素数据，判断是否有内容
+        let hasContent = false;
+
+        for (let i = 0; i < data.length; i += 4) {
+          const alpha = data[i + 3]; // 获取当前像素的透明度值
+          // 如果有一个像素的透明度不为 0，则认为区域有内容
+          if (alpha !== 0) {
+            hasContent = true;
+            break;
+          }
+        }
+        return hasContent;
+      }
+
+      // 计算可放内容宽度和高度
+      function checkContentSize(x, y) {
+        var w = 20;
+        for (let i = x; i < width; i += 20) {
+          w = i === 0 ? 20 : i;
+          if (checkHasContent(x, y, w, 20)) {
+            break;
+          }
+        }
+        if (w < 10) {
+          return 0;
+        }
+        if (w >= 200) {
+          return 200;
+        }
+        // console.log("可放内容最大宽度：", w);
+        return w;
+      }
+    </script>
+  </body>
+</html>

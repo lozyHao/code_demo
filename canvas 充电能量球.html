@@ -1,0 +1,278 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>充电能量球</title>
+    <style>
+      body {
+        box-sizing: border-box;
+        padding: 0;
+        margin: 0;
+      }
+      canvas {
+        background-color: #000;
+      }
+      .buts {
+        width: 400px;
+        display: flex;
+        justify-content: center;
+        margin-top: 10px;
+      }
+      .buts > button {
+        width: 40px;
+        margin: 0 12px;
+        font-size: 20px;
+      }
+    </style>
+  </head>
+
+  <body>
+    <canvas id="myCanvas" width="400" height="400"></canvas>
+    <div class="buts">
+      <button id="sub">-</button>
+      <button id="add">+</button>
+    </div>
+    <script>
+      // 获取画布和上下文
+      var canvas = document.getElementById("myCanvas");
+      var ctx = canvas.getContext("2d");
+
+      // 定义圆的属性
+      var centerX = canvas.width / 2;
+      var centerY = canvas.height / 2;
+      var radius = 150;
+      var startAngle = 0;
+      var endAngle = 2 * Math.PI;
+
+      // 定义线性渐变
+      var gradientLine = ctx.createLinearGradient(
+        centerX,
+        centerY - radius,
+        centerX,
+        centerY + radius
+      );
+      gradientLine.addColorStop(0, "#72f4eb");
+      gradientLine.addColorStop(1, "#68b0e3");
+      var gradientLineWave = ctx.createLinearGradient(
+        centerX,
+        centerY - radius,
+        centerX,
+        centerY + radius
+      );
+      gradientLineWave.addColorStop(0, "#72f4eb");
+      gradientLineWave.addColorStop(1, "#68b0e3");
+      // 定义镜像渐变颜色
+      var gradientRadial = ctx.createRadialGradient(
+        centerX + 40,
+        centerY + 10,
+        60,
+        centerX,
+        centerY,
+        radius - 40
+      );
+      gradientRadial.addColorStop(0, "#2185ac00");
+      gradientRadial.addColorStop(0.8, "#2185ac00");
+      gradientRadial.addColorStop(1, "#2185acB0");
+      // 定义水波纹属性
+      var amplitude = 10; // 振幅
+      var frequency = 0.025; // 频率
+      var phaseShift = 0; // 相位差
+      var speed = 0.1; // 速度
+      // 定义气泡属性
+      var bubbleOffset = 0;
+      var bubbleSpeed = 0.1;
+      var bubbleSize = 10;
+      // 定义充电百分比
+      var chargePercentage = 70;
+
+      // 创建气泡数组
+      var bubbles = [];
+      function Bubble(x, y, size, speed) {
+        this.x = x;
+        this.y = y;
+        this.size = size;
+        this.speed = speed;
+        // 绘制气泡
+        this.draw = function () {
+          ctx.beginPath();
+          ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+          ctx.fillStyle = "rgba(255, 255, 255, 0.5)";
+          ctx.fill();
+          ctx.closePath();
+        };
+        // 更新气泡的位置
+        this.update = function () {
+          this.y -= this.speed;
+          if (Math.random() * 10 > 5) {
+            this.x += this.speed;
+          } else {
+            this.x -= this.speed;
+          }
+          this.draw();
+        };
+      }
+
+      // 生成随机气泡
+      function generateBubble() {
+        var x = centerX + Math.random() * 20 - 10;
+        var y = centerY + 95;
+        var size = Math.random() * 10 + 5;
+        var speed = Math.random() * 0.8 + 0.5;
+        var bubble = new Bubble(x, y, size, speed);
+        bubbles.push(bubble);
+      }
+      // 绘制气泡并更新位置
+      function drawBubbles() {
+        for (var i = 0; i < bubbles.length; i++) {
+          bubbles[i].update();
+          if (bubbles[i].y < centerY + 140 - chargePercentage * 2.2) {
+            bubbles.splice(i, 1);
+          }
+        }
+      }
+      // 绘制百分比文本
+      function drawPercentage() {
+        ctx.font = "100px Arial";
+        ctx.fillStyle = "#fff";
+        ctx.textAlign = "center";
+        ctx.fillText(chargePercentage, centerX, centerY + 30);
+      }
+
+      // 定时生成气泡
+      setInterval(function () {
+        if (chargePercentage > 30) {
+          generateBubble();
+        }
+      }, 1000);
+
+      // 绘制充电能量球
+      function draw() {
+        // 清空画布
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+        // 绘制水波纹效果
+        if (chargePercentage > 0) {
+          ctx.shadowColor = "#64b5f6";
+          ctx.shadowBlur = 10;
+          ctx.beginPath();
+          for (var x = centerX - radius + 40; x < centerX + radius - 40; x++) {
+            var y =
+              centerY +
+              100 -
+              chargePercentage * 2.2 -
+              amplitude * Math.sin(frequency * x + phaseShift);
+            ctx.lineTo(x, y);
+          }
+          ctx.lineTo(centerX + 110, centerY + 110);
+          ctx.lineTo(centerX - 110, centerY + 110);
+          ctx.closePath();
+          ctx.lineWidth = 2;
+          ctx.fillStyle = gradientLineWave;
+          ctx.fill();
+
+          ctx.shadowColor = "#64b5f6";
+          ctx.shadowBlur = 10;
+          ctx.beginPath();
+          for (var x = centerX - radius + 40; x < centerX + radius - 40; x++) {
+            var y =
+              centerY +
+              100 -
+              chargePercentage * 2.2 +
+              amplitude * Math.sin(frequency * x + phaseShift);
+            ctx.lineTo(x, y);
+          }
+          ctx.lineTo(centerX + 110, centerY + 110);
+          ctx.lineTo(centerX - 110, centerY + 110);
+          ctx.closePath();
+          ctx.lineWidth = 2;
+          ctx.fillStyle = gradientLineWave;
+          ctx.fill();
+
+          ctx.save(); // 保存当前绘图状态
+          ctx.globalCompositeOperation = "destination-in"; // 设置组合模式为destination-in，将后绘制的图形与先绘制的图形重叠部分保留下来
+          ctx.beginPath();
+          ctx.arc(centerX, centerY, radius - 40, startAngle, endAngle);
+          ctx.closePath();
+          ctx.lineWidth = 2;
+          ctx.fill();
+          ctx.restore(); // 恢复绘图状态
+        }
+        // 绘制外面的蓝色圆环
+        ctx.shadowColor = "#64b5f6";
+        ctx.shadowBlur = 20;
+        ctx.beginPath();
+        ctx.arc(centerX, centerY, radius, startAngle, endAngle);
+        ctx.strokeStyle = gradientLine;
+        ctx.lineWidth = 10;
+        ctx.stroke();
+
+        // 绘制里面的浅蓝色渐变圆形
+        ctx.shadowColor = "#006568";
+        ctx.shadowBlur = 10;
+        ctx.beginPath();
+        ctx.arc(centerX, centerY, radius - 40, startAngle, endAngle);
+        ctx.fillStyle = gradientRadial;
+        ctx.fill();
+        ctx.shadowColor = "#64b5f6";
+        ctx.shadowBlur = 0;
+
+        // 绘制气泡
+        drawBubbles();
+
+        // 绘制百分比文本
+        drawPercentage();
+
+        phaseShift += speed;
+
+        // 循环绘制动画
+        requestAnimationFrame(draw);
+      }
+
+      // 开始绘制
+      draw();
+
+      var isBtn = false;
+      var addBtn = document.querySelector("#add");
+      addBtn.addEventListener("click", () => {
+        if (!isBtn) {
+          isBtn = true;
+          var num = 0;
+          if (chargePercentage < 100) {
+            let timer = setInterval(() => {
+              num += 1;
+              chargePercentage += 1;
+              if (num >= 10) {
+                clearInterval(timer);
+                num = 0;
+                isBtn = false;
+              }
+            }, 100);
+          } else {
+            isBtn = false;
+          }
+        }
+      });
+      var subBtn = document.querySelector("#sub");
+      subBtn.addEventListener("click", () => {
+        if (!isBtn) {
+          isBtn = true;
+          var num = 10;
+          if (chargePercentage > 0) {
+            let timer = setInterval(() => {
+              num -= 1;
+              chargePercentage -= 1;
+              if (num <= 0) {
+                clearInterval(timer);
+                num = 10;
+                isBtn = false;
+              }
+            }, 100);
+          } else {
+            isBtn = false;
+          }
+        }
+      });
+    </script>
+  </body>
+</html>
