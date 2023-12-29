@@ -35,6 +35,36 @@
         align-items: center;
         background-color: #33333340;
       }
+
+      .box01 {
+        width: 200px;
+        height: 200px;
+        margin: 100px auto 0;
+        background-color: #33333320;
+      }
+      .content02 {
+        width: 200px;
+        height: 200px;
+        border: 2px solid white;
+        background: transparent;
+        animation: triangle 1.3s linear infinite;
+      }
+
+      @keyframes triangle {
+        0%,
+        100% {
+          clip-path: inset(0 198px 0 0);
+        }
+        25% {
+          clip-path: inset(0 0 198px 0);
+        }
+        50% {
+          clip-path: inset(0 0 0 198px);
+        }
+        75% {
+          clip-path: inset(198px 0 0 0);
+        }
+      }
     </style>
   </head>
 
@@ -43,11 +73,14 @@
       <canvas id="myCanvas" width="204" height="204"></canvas>
       <div class="content" id="content">0%</div>
     </div>
+    <div class="box01">
+      <div class="content02"></div>
+    </div>
     <script>
       // 获取画布和上下文
       let canvas = document.getElementById("myCanvas");
       let ctx = canvas.getContext("2d");
-      const speed = 5;
+      const speed = 8;
 
       let dotList = [
         { x: 2, y: 2 },
