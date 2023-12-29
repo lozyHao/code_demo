@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>方形霓虹灯</title>
+    <style>
+      * {
+        box-sizing: border-box;
+        padding: 0;
+        margin: 0;
+        background: #000;
+      }
+      .box {
+        position: relative;
+        width: 204px;
+        height: 204px;
+        margin: 100px auto 0;
+      }
+      canvas {
+        display: block;
+        background-color: #33333320;
+      }
+      .content {
+        position: absolute;
+        left: 5%;
+        top: 5%;
+        width: 90%;
+        height: 90%;
+        color: #fff;
+        font-size: 50px;
+        font-weight: 500;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        background-color: #33333340;
+      }
+    </style>
+  </head>
+
+  <body>
+    <div class="box">
+      <canvas id="myCanvas" width="204" height="204"></canvas>
+      <div class="content" id="content">0%</div>
+    </div>
+    <script>
+      // 获取画布和上下文
+      let canvas = document.getElementById("myCanvas");
+      let ctx = canvas.getContext("2d");
+      const speed = 5;
+
+      let dotList = [
+        { x: 2, y: 2 },
+        { x: 2, y: 2 },
+      ];
+      let startX = 2;
+      let startY = 2;
+
+      let position = "top";
+
+      // 绘制
+      function draw() {
+        // 清空画布
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+        ctx.beginPath();
+        ctx.moveTo(dotList[0].x, dotList[0].y);
+        if (dotList.length > 1)
+          for (let i = 1; i < dotList.length; i++) {
+            ctx.lineTo(dotList[i].x, dotList[i].y);
+          }
+        ctx.strokeStyle = "#ffffff";
+        ctx.lineWidth = 2;
+        ctx.stroke();
+        // 计算开始点位置
+        if (startY <= 2) {
+          startY = 2;
+          position = "top";
+          if (startX <= 2) {
+            dotList.push({ x: 2, y: 2 });
+            startX += speed;
+          } else if (startX < 202) {
+            startX += speed;
+          } else if (startX >= 202) {
+            startX = 202;
+            dotList.push({ x: 202, y: 2 });
+            startY += speed;
+          }
+        } else if (startY >= 202) {
+          position = "bottom";
+          startY = 202;
+          if (startX <= 2) {
+            startX = 2;
+            dotList.push({ x: 2, y: 202 });
+            startY -= speed;
+          } else if (startX < 202) {
+            startX -= speed;
+          } else {
+            dotList.push({ x: 202, y: 202 });
+            startX -= speed;
+          }
+        } else {
+          if (startX === 202) {
+            position = "right";
+            startY += speed;
+          } else if (startX === 2) {
+            position = "left";
+            startY -= speed;
+          }
+        }
+        dotList[dotList.length - 1].x = startX;
+        dotList[dotList.length - 1].y = startY;
+
+        // 处理结束点
+        switch (position) {
+          case "top":
+            if (dotList.length > 3) {
+              dotList.shift();
+            }
+            dotList[0].y -= speed;
+            dotList[0].x = 2;
+            break;
+          case "right":
+            if (dotList.length > 3) {
+              dotList.shift();
+            }
+            dotList[0].x += speed;
+            dotList[0].y = 2;
+            break;
+          case "bottom":
+            if (dotList.length > 3) {
+              dotList.shift();
+            }
+            dotList[0].y += speed;
+            dotList[0].x = 202;
+            break;
+          case "left":
+            if (dotList.length > 3) {
+              dotList.shift();
+            }
+            dotList[0].x -= speed;
+            dotList[0].y = 202;
+            break;
+          default:
+            break;
+        }
+
+        // 循环绘制动画
+        requestAnimationFrame(draw);
+      }
+      // 开始绘制
+      draw();
+
+      let num = 0;
+      let timer = null;
+      function add() {
+        const dom = document.getElementById("content");
+        timer = setInterval(() => {
+          num += Math.floor(Math.random() * 11);
+          if (num >= 100) {
+            num = 100;
+            clearInterval(timer);
+          }
+          dom.textContent = num + "%";
+        }, 500);
+      }
+      add();
+    </script>
+  </body>
+</html>
