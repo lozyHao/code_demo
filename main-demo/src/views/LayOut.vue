@@ -1,13 +1,98 @@
-<script setup></script>
+<script setup>
+import logo from "@/assets/img/lozyhao_avatar.jpg";
+import { NIcon } from "naive-ui";
+import {
+  HomeOutline,
+  Analytics,
+  ContrastOutline,
+  CropOutline,
+} from "@vicons/ionicons5";
+import { ref, watch } from "vue";
+import { useRoute } from "vue-router";
+import router from "@/router/index.js";
+
+const route = useRoute();
+
+const collapsed = ref(true);
+const activeKey = ref(route.name);
+
+const renderIcon = (icon) => {
+  return () => h(NIcon, null, { default: () => h(icon) });
+};
+const menuOptions = [
+  {
+    label: "首页",
+    key: "home",
+    icon: renderIcon(HomeOutline),
+  },
+  {
+    label: "轨道标记",
+    key: "canvas-track",
+    icon: renderIcon(Analytics),
+  },
+  {
+    label: "canvas仿马赛克-视频",
+    key: "video-mosaic",
+    icon: renderIcon(ContrastOutline),
+  },
+  {
+    label: "视频截图绘制",
+    key: "video-snapshot",
+    icon: renderIcon(CropOutline),
+  },
+];
+
+const navigatorTo = (key) => {
+  router.push({
+    name: key,
+  });
+};
+
+watch(
+  () => route.name,
+  () => {
+    activeKey.value = route.name;
+  }
+);
+</script>
 
 <template>
   <div class="lay_out">
-    <nav class="nav">
-      <strong>LM</strong>
-      <router-link to="/home">首页</router-link>
-      <router-link to="/canvas-track">轨道<br />标记</router-link>
-    </nav>
-    <router-view class="router-view"></router-view>
+    <n-layout has-sider>
+      <n-layout-sider
+        bordered
+        collapse-mode="width"
+        :collapsed-width="64"
+        :width="240"
+        :collapsed="collapsed"
+        show-trigger
+        @collapse="collapsed = true"
+        @expand="collapsed = false"
+      >
+        <div
+          class="w-full py-2 flex justify-center items-center overflow-hidden"
+        >
+          <img
+            class="block w-10 h-10 shadow rounded-2"
+            :src="logo"
+            alt=""
+            srcset=""
+          />
+          <span class="ml-2 text-5 font-bold" v-if="!collapsed">lozyhao</span>
+        </div>
+        <n-menu
+          v-model:value="activeKey"
+          :collapsed="collapsed"
+          :collapsed-width="64"
+          :collapsed-icon-size="22"
+          :options="menuOptions"
+          @update:value="(key) => navigatorTo(key)"
+        />
+      </n-layout-sider>
+      <n-layout-content content-style="padding: 0;">
+        <router-view class="router-view"></router-view>
+      </n-layout-content>
+    </n-layout>
   </div>
 </template>
 

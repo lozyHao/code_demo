@@ -10,7 +10,7 @@ import { onMounted, ref } from "vue";
 // 获取视频数据设置属性
 const getVideo = () => {
   reviewVideoStore().setVideoData({ url: videoItem });
-  reviewVideoStore().setDuration(34199);
+  reviewVideoStore().setDuration(120);
 };
 
 // 拖拽

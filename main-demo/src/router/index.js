@@ -17,6 +17,16 @@ const routes = [
         name: "canvas-track",
         component: () => import("@/views/CanvasTrack/CanvasTrack.vue"),
       },
+      {
+        path: "video-mosaic",
+        name: "video-mosaic",
+        component: () => import("@/views/VideoMosaic/VideoMosaic.vue"),
+      },
+      {
+        path: "video-snapshot",
+        name: "video-snapshot",
+        component: () => import("@/views/VideoSnapshot/VideoSnapshot.vue"),
+      },
     ],
   },
 ];

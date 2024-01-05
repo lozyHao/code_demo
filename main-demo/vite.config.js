@@ -1,4 +1,5 @@
 import path from "path";
+import UnoCSS from "unocss/vite";
 import { defineConfig } from "vite";
 import vue from "@vitejs/plugin-vue";
 
@@ -23,6 +24,7 @@ export default defineConfig({
         },
       ],
     }),
+    UnoCSS(),
     Components({
       resolvers: [NaiveUiResolver()],
     }),
