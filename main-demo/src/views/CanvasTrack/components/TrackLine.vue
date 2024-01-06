@@ -35,7 +35,7 @@ let moveLeft = ref(0);
 // 绘制canvas
 const initCanvas = () => {
   // canvas宽度
-  const width = videoCanvas.value.clientWidth;
+  const width = videoCanvas.value?.clientWidth;
   if (width >= canvasContentWidth.value || canvasContentWidth.value <= 0) {
     canvasContentWidth.value = width;
   }
@@ -85,10 +85,10 @@ const initProgressBar = () => {
   scrollbarWidth.value =
     videoCanvas.value?.clientWidth /
       ((canvasContentWidth.value + +200) * ratio.value) >
-    0.1
+      0.1
       ? (videoCanvas.value?.clientWidth /
-          ((canvasContentWidth.value + +200) * ratio.value)) *
-        100
+        ((canvasContentWidth.value + +200) * ratio.value)) *
+      100
       : 1;
   const webkitScrollbarThumbDom = document.querySelector(
     ".webkit_scrollbar_thumb"
@@ -322,7 +322,7 @@ const onMouseMoveScrollBar = (event) => {
     if (
       scrollXLeft.value >= 0 &&
       scrollXLeft.value <=
-        scrollbarTrackDom.clientWidth - webkitScrollbarThumbDom.clientWidth
+      scrollbarTrackDom.clientWidth - webkitScrollbarThumbDom.clientWidth
     ) {
       moveLeft.value =
         (scrollXLeft.value *
@@ -442,25 +442,11 @@ const graduationTimeText = (item) => {
         </span>
       </div>
       <div class="track_menu_item track_menu_item_zoom">
-        <n-button
-          class="zoom_add"
-          @click="magnifyXZoom"
-          quaternary
-          circle
-          round
-          :disabled="isMagnify"
-        >
+        <n-button class="zoom_add" @click="magnifyXZoom" quaternary circle round :disabled="isMagnify">
           +
         </n-button>
         <span class="zoom_ratio">{{ ratio * 100 }}%</span>
-        <n-button
-          class="zoom_sub"
-          @click="lessenXZoom"
-          quaternary
-          circle
-          round
-          :disabled="isLessen"
-        >
+        <n-button class="zoom_sub" @click="lessenXZoom" quaternary circle round :disabled="isLessen">
           -
         </n-button>
         <n-icon class="zoom_adaptation" @click="resetXZoom">
@@ -470,24 +456,12 @@ const graduationTimeText = (item) => {
     </div>
     <div class="track_box">
       <!-- 移动轴 -->
-      <div
-        class="grabbing"
-        @mousedown="onMousedownGrabbing"
-        v-show="grabbingStatus"
-        :style="{ left: grabbingLeft }"
-      >
+      <div class="grabbing" @mousedown="onMousedownGrabbing" v-show="grabbingStatus" :style="{ left: grabbingLeft }">
         <div class="grabbing_line"></div>
-        <svg
-          id="grabbing_head"
-          data-name="grabbing_head"
-          xmlns="http://www.w3.org/2000/svg"
-          viewBox="0 0 12 18"
-        >
+        <svg id="grabbing_head" data-name="grabbing_head" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 12 18">
           <title>grabbing_head</title>
-          <path
-            class="cls-1"
-            d="M11.72635,11.77325,6.84792,17.59939a1.09764,1.09764,0,0,1-1.69584,0L.27365,11.77325A1.18309,1.18309,0,0,1,0,11.01416V1.1597A1.14111,1.14111,0,0,1,1.12157,0h9.75686A1.14111,1.14111,0,0,1,12,1.1597v9.85446A1.18309,1.18309,0,0,1,11.72635,11.77325Z"
-          />
+          <path class="cls-1"
+            d="M11.72635,11.77325,6.84792,17.59939a1.09764,1.09764,0,0,1-1.69584,0L.27365,11.77325A1.18309,1.18309,0,0,1,0,11.01416V1.1597A1.14111,1.14111,0,0,1,1.12157,0h9.75686A1.14111,1.14111,0,0,1,12,1.1597v9.85446A1.18309,1.18309,0,0,1,11.72635,11.77325Z" />
         </svg>
       </div>
       <!-- canvas时间轴 -->
@@ -503,27 +477,17 @@ const graduationTimeText = (item) => {
             标记类型包含手术过程标注，手术日志标点
           </n-tooltip>
         </div>
-        <canvas
-          id="video_canvas"
-          ref="videoCanvas"
-          @wheel.ctrl="handleWheelCtrl"
-        ></canvas>
+        <canvas id="video_canvas" ref="videoCanvas" @wheel.ctrl="handleWheelCtrl"></canvas>
       </div>
       <!-- 轨道 -->
       <div class="track_items">
         <div class="track_items_title">
           <div class="track_item process">手术过程</div>
-          <div
-            class="track_item log"
-            :class="!logFoldStatus ? 'log_after' : ''"
-          >
+          <div class="track_item log" :class="!logFoldStatus ? 'log_after' : ''">
             <span @click="clickFold">-</span>
             <span>手术日志</span>
           </div>
-          <div
-            class="track_item_fold"
-            :style="{ height: logFoldStatus ? '0' : '96px' }"
-          >
+          <div class="track_item_fold" :style="{ height: logFoldStatus ? '0' : '96px' }">
             <div class="track_item">出血</div>
             <div class="track_item">缝合/吻合</div>
             <div class="track_item">离断</div>
@@ -536,30 +500,20 @@ const graduationTimeText = (item) => {
         <div class="track_items_content" @wheel.ctrl="handleWheelCtrl">
           <div class="track_item_content process">1</div>
           <div class="track_item_content log">2</div>
-          <div
-            class="track_item_content_fold"
-            :style="{ height: logFoldStatus ? '0' : '96px' }"
-          >
+          <div class="track_item_content_fold" :style="{ height: logFoldStatus ? '0' : '96px' }">
             <div class="track_item_content">3</div>
             <div class="track_item_content">4</div>
             <div class="track_item_content">5</div>
           </div>
           <div class="track_item_content customize">6</div>
-          <div
-            class="track_item_content discuss"
-            style="background-color: #c1dcfb"
-          >
+          <div class="track_item_content discuss" style="background-color: #c1dcfb">
             7
           </div>
         </div>
       </div>
       <div class="scrollbar_track">
-        <div
-          v-show="scrollbarWidth < 100"
-          class="webkit_scrollbar_thumb"
-          :style="{ width: scrollbarWidth + '%' }"
-          @mousedown="(event) => dragScrollBar(event)"
-        ></div>
+        <div v-show="scrollbarWidth < 100" class="webkit_scrollbar_thumb" :style="{ width: scrollbarWidth + '%' }"
+          @mousedown="(event) => dragScrollBar(event)"></div>
       </div>
     </div>
   </div>
@@ -571,6 +525,7 @@ const graduationTimeText = (item) => {
   height: 100%;
   display: flex;
   flex-direction: column;
+
   // 轨道菜单
   .track_menu {
     width: 100%;
@@ -581,21 +536,26 @@ const graduationTimeText = (item) => {
     justify-content: space-between;
     align-items: center;
     overflow: hidden;
+
     .track_menu_item_record {
       display: flex;
+
       .n-icon {
         font-size: 22px;
         color: #777;
         cursor: pointer;
         transition: 0.2s;
+
         &:hover {
           color: #111;
         }
+
         &:nth-of-type(1) {
           margin-right: 22px;
         }
       }
     }
+
     .track_menu_item_time {
       flex: 1;
       font-size: 16px;
@@ -603,9 +563,11 @@ const graduationTimeText = (item) => {
       display: flex;
       justify-content: center;
     }
+
     .track_menu_item_zoom {
       display: flex;
       align-items: center;
+
       span.zoom_ratio {
         display: block;
         margin: 0 24px;
@@ -613,7 +575,9 @@ const graduationTimeText = (item) => {
         background: rgba(0, 0, 0, 0.05);
         border-radius: 4px;
       }
+
       .n-button {
+
         &.zoom_add,
         &.zoom_sub {
           height: 20px;
@@ -625,16 +589,19 @@ const graduationTimeText = (item) => {
           text-align: center;
           cursor: pointer;
           transition: 0.2s;
+
           &:hover {
             color: #111;
             border-color: #111;
           }
+
           .n-icon {
             font-size: 20px;
             color: #777;
           }
         }
       }
+
       .zoom_adaptation {
         width: 32px;
         height: 32px;
@@ -648,18 +615,21 @@ const graduationTimeText = (item) => {
         align-items: center;
         cursor: pointer;
         transition: 0.2s;
+
         &:hover {
           color: #111;
         }
       }
     }
   }
+
   .track_box {
     height: calc(100% - 44px);
     width: 100%;
     background: #eee;
     position: relative;
     overflow: hidden;
+
     // 移动轴
     .grabbing {
       position: absolute;
@@ -668,9 +638,11 @@ const graduationTimeText = (item) => {
       z-index: 2;
       height: calc(100% - 12px);
       width: 12px;
+
       &:hover {
         cursor: grab;
       }
+
       .grabbing_line {
         position: absolute;
         left: 5px;
@@ -679,22 +651,26 @@ const graduationTimeText = (item) => {
         background: #e94f4e;
         border-radius: 2px;
       }
+
       #grabbing_head {
         position: absolute;
         top: 0;
         width: 12px;
         height: 18px;
+
         .cls-1 {
           fill: #e94f4e;
         }
       }
     }
+
     // canvas时间轴
     .track_canvas {
       height: 32px;
       width: 100%;
       margin-bottom: 4px;
       display: flex;
+
       .track_canvas_title {
         height: 100%;
         width: 165px;
@@ -703,6 +679,7 @@ const graduationTimeText = (item) => {
         justify-content: center;
         align-items: center;
         color: #555;
+
         .n-icon {
           color: #1b45d899;
           font-size: 20px;
@@ -710,24 +687,29 @@ const graduationTimeText = (item) => {
           cursor: pointer;
         }
       }
+
       #video_canvas {
         width: calc(100% - 165px);
         height: 32px;
         background: #f4f9fd;
       }
     }
+
     // 轨道
     .track_items {
       height: calc(100% - 50px);
       width: 100%;
       overflow-y: scroll;
       display: flex;
+
       &::-webkit-scrollbar {
         width: 8px;
       }
+
       &::-webkit-scrollbar-track {
         background-color: transparent;
       }
+
       &::-webkit-scrollbar-thumb {
         background-color: rgba(0, 0, 0, 0.5);
         border-radius: 100px;
@@ -740,10 +722,12 @@ const graduationTimeText = (item) => {
           background-clip: content-box;
         }
       }
+
       // 轨道标题
       .track_items_title {
         width: 165px;
         height: 252px;
+
         .track_item {
           width: 100%;
           height: 32px;
@@ -751,15 +735,18 @@ const graduationTimeText = (item) => {
           align-items: center;
           background: #f1f5f9;
           border-bottom: 1px solid #eee;
+
           &.process {
             width: 100%;
             height: 44px;
             justify-content: center;
             margin-bottom: 4px;
           }
+
           &.log {
             height: 44px;
             padding-left: 20px;
+
             span:nth-of-type(1) {
               height: 10px;
               width: 10px;
@@ -773,9 +760,11 @@ const graduationTimeText = (item) => {
               cursor: pointer;
               transition: 0.2s;
             }
+
             span:nth-of-type(2) {
               position: relative;
               padding-left: 30px;
+
               &::after {
                 position: absolute;
                 bottom: 10px;
@@ -787,6 +776,7 @@ const graduationTimeText = (item) => {
               }
             }
           }
+
           &.log_after {
             span:nth-of-type(1) {
               &::after {
@@ -800,18 +790,22 @@ const graduationTimeText = (item) => {
               }
             }
           }
+
           &.customize,
           &.discuss {
             justify-content: center;
           }
         }
+
         .track_item_fold {
           background: #f1f5f9;
           overflow: hidden;
           transition: 0.2s;
+
           .track_item {
             padding-left: 62px;
             position: relative;
+
             &::before {
               position: absolute;
               top: 14px;
@@ -821,6 +815,7 @@ const graduationTimeText = (item) => {
               width: 14px;
               border-bottom: 1px dashed #777;
             }
+
             &::after {
               position: absolute;
               top: 0;
@@ -830,6 +825,7 @@ const graduationTimeText = (item) => {
               width: 1px;
               border-right: 1px dashed #777;
             }
+
             &:nth-last-of-type(1) {
               &::after {
                 position: absolute;
@@ -844,6 +840,7 @@ const graduationTimeText = (item) => {
           }
         }
       }
+
       // 轨道长轴内容
       .track_items_content {
         width: calc(100% - 165px);
@@ -851,29 +848,35 @@ const graduationTimeText = (item) => {
         overflow-y: hidden;
         overflow-x: auto;
         top: 0;
+
         &::-webkit-scrollbar {
           display: none;
         }
+
         .track_item_content {
           position: relative;
           width: 100%;
           height: 32px;
           border-bottom: 1px solid #f8f8f8;
           background: #fff;
+
           &.process {
             height: 44px;
             margin-bottom: 4px;
           }
+
           &.log {
             height: 44px;
           }
         }
+
         .track_item_content_fold {
           overflow: hidden;
           transition: 0.2s;
         }
       }
     }
+
     // 滚动条
     .scrollbar_track {
       position: absolute;
@@ -881,6 +884,7 @@ const graduationTimeText = (item) => {
       right: 0;
       width: calc(100% - 165px);
       height: 10px;
+
       .webkit_scrollbar_thumb {
         position: absolute;
         bottom: 2px;
@@ -888,6 +892,7 @@ const graduationTimeText = (item) => {
         height: 6px;
         border-radius: 3px;
         background: rgba(0, 0, 0, 0.5);
+
         &:hover {
           background: rgba(0, 0, 0, 0.8);
         }

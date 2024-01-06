@@ -59,35 +59,14 @@ watch(
 <template>
   <div class="lay_out">
     <n-layout has-sider>
-      <n-layout-sider
-        bordered
-        collapse-mode="width"
-        :collapsed-width="64"
-        :width="240"
-        :collapsed="collapsed"
-        show-trigger
-        @collapse="collapsed = true"
-        @expand="collapsed = false"
-      >
-        <div
-          class="w-full py-2 flex justify-center items-center overflow-hidden"
-        >
-          <img
-            class="block w-10 h-10 shadow rounded-2"
-            :src="logo"
-            alt=""
-            srcset=""
-          />
+      <n-layout-sider bordered collapse-mode="width" :collapsed-width="64" :width="240" :collapsed="collapsed"
+        show-trigger @collapse="collapsed = true" @expand="collapsed = false">
+        <div class="w-full py-2 flex justify-center items-center overflow-hidden">
+          <img class="block w-10 h-10 shadow rounded-2" :src="logo" alt="" srcset="" />
           <span class="ml-2 text-5 font-bold" v-if="!collapsed">lozyhao</span>
         </div>
-        <n-menu
-          v-model:value="activeKey"
-          :collapsed="collapsed"
-          :collapsed-width="64"
-          :collapsed-icon-size="22"
-          :options="menuOptions"
-          @update:value="(key) => navigatorTo(key)"
-        />
+        <n-menu v-model:value="activeKey" :collapsed="collapsed" :collapsed-width="64" :collapsed-icon-size="22"
+          :options="menuOptions" @update:value="(key) => navigatorTo(key)" />
       </n-layout-sider>
       <n-layout-content content-style="padding: 0;">
         <router-view class="router-view"></router-view>
@@ -100,12 +79,14 @@ watch(
 .lay_out {
   display: flex;
   justify-content: space-between;
+
   .nav {
     width: 60px;
     height: 100vh;
     padding: 10px 0;
     border-right: 1px solid #eee;
-    & > strong {
+
+    &>strong {
       display: block;
       width: 40px;
       text-align: center;
@@ -114,6 +95,7 @@ watch(
       box-shadow: #ddd 0 0 10px 0;
       margin: 0 auto;
     }
+
     a {
       display: block;
       width: 100%;
@@ -123,19 +105,23 @@ watch(
       font-size: 12px;
       border-radius: 4px;
       transition: 0.2s;
+
       &:hover {
         background: #eee;
       }
+
       &.router-link-active {
         color: #1773eb;
         background: #eee;
       }
     }
   }
+
   .router-view {
     flex: 1;
     height: 100vh;
-    overflow: hidden;
+    overflow-x: hidden;
+    overflow-y: auto;
   }
 }
 </style>
