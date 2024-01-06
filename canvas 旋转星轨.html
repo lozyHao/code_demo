@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>星空特效</title>
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+      }
+
+      body {
+        overflow: hidden;
+        background-color: #000;
+      }
+      canvas {
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        left: 0;
+        display: block;
+        width: 100vw;
+        max-width: 1000px;
+        min-width: 500px;
+        margin: auto;
+      }
+    </style>
+  </head>
+
+  <body>
+    <canvas></canvas>
+    <script>
+      var canvas = document.querySelector("canvas");
+      ctx = canvas.getContext("2d");
+      w = canvas.width = window.innerWidth;
+      h = canvas.height = window.innerHeight;
+      var canvas2 = document.createElement("canvas");
+      ctx2 = canvas2.getContext("2d");
+      canvas2.width = 100;
+      canvas2.height = 100;
+      var a = canvas2.width / 2;
+      var grandient = ctx.createRadialGradient(a, a, 0, a, a, a);
+      grandient.addColorStop(0.025, "#fff");
+      grandient.addColorStop(0.075, "rgba(30, 60, 124, 0.8)");
+      grandient.addColorStop(0.125, "rgba(30, 60, 124, 0.6)");
+      grandient.addColorStop(0.5, "transparent");
+      ctx2.fillStyle = grandient;
+      ctx2.beginPath();
+      ctx2.arc(a, a, a, 0, Math.PI * 2);
+      ctx2.fill();
+      ctx2.closePath();
+      var stars = [];
+      var count = 0;
+      function Star() {
+        this.pos = Math.floor((Math.random() * w) / 1.7 - 100);
+        this.r = Math.floor(Math.random() * 100);
+        this.dx = w / 2;
+        this.dy = h / 2;
+        this.rand = Math.floor(Math.random() * 360);
+        this.speed = this.pos / 1000000;
+        stars[count] = this;
+        count++;
+      }
+      Star.prototype.draw = function () {
+        var x = Math.sin(this.rand + 1) * this.pos + this.dx;
+        y = (Math.cos(this.rand) * this.pos) / 2 + this.dy;
+        ctx.drawImage(canvas2, x - this.r / 2, y - this.r / 2, this.r, this.r);
+        this.rand = this.rand + this.speed;
+      };
+      for (var i = 0; i < 1000; i++) {
+        new Star();
+      }
+      function anmit() {
+        ctx.clearRect(0, 0, w, h);
+        for (var i = 0; i < stars.length; i++) {
+          stars[i].draw();
+        }
+        requestAnimationFrame(anmit);
+      }
+      anmit();
+    </script>
+  </body>
+</html>
