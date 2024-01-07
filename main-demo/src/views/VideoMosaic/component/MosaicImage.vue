@@ -41,14 +41,14 @@ const init = () => {
 }
 
 //画图
-function draw(img) {
+const draw = (img) => {
     ctx.value.drawImage(img, 0, 0);
     var imgData = ctx.value.getImageData(0, 0, img.width, img.height);
     mskDraw(imgData);
     ctx.value.putImageData(imgData, 0, 0)
 }
 //马赛克
-function mskDraw(imgData) {
+const mskDraw = (imgData) => {
     ctx.value.clearRect(0, 0, canvas.value.width, canvas.value.height)
     var currentSize = size.value;
     for (var i = 0; i < imgData.width / currentSize; i++) {
