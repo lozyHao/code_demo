@@ -12,8 +12,6 @@ import { useRoute } from "vue-router";
 import router from "@/router/index.js";
 
 const route = useRoute();
-
-const collapsed = ref(true);
 const activeKey = ref(route.name);
 
 const renderIcon = (icon) => {
@@ -54,19 +52,69 @@ watch(
     activeKey.value = route.name;
   }
 );
+
+const screenWidth = ref(0);
+const collapsed = ref(true);
+const collapsedHide = ref(false);
+const MOBILE_WIDTH = 935;
+// 移动端适配
+// 监听窗口宽度变化
+let getScreenWidth = function () {
+  screenWidth.value = document.documentElement.clientWidth || window.innerWidth;
+  if (screenWidth.value < MOBILE_WIDTH) {
+    collapsedHide.value = true;
+  } else {
+    collapsedHide.value = false;
+  }
+};
+
+onMounted(() => {
+  getScreenWidth();
+  window.onresize = function () {
+    getScreenWidth();
+  };
+});
 </script>
 
 <template>
   <div class="lay_out">
     <n-layout has-sider>
-      <n-layout-sider bordered collapse-mode="width" :collapsed-width="64" :width="240" :collapsed="collapsed"
-        show-trigger @collapse="collapsed = true" @expand="collapsed = false">
-        <div class="w-full py-2 flex justify-center items-center overflow-hidden">
-          <img class="block w-10 h-10 shadow rounded-2" :src="logo" alt="" srcset="" />
+      <n-layout-sider
+        bordered
+        collapse-mode="width"
+        :width="240"
+        :collapsed="collapsed"
+        show-trigger
+        @collapse="collapsed = true"
+        @expand="collapsed = false"
+        :style="{
+          position: collapsedHide ? 'fixed' : '',
+          zIndex: '1000',
+          height: '100vh',
+        }"
+        :collapsed-width="collapsedHide ? 0 : 64"
+        content-style="padding: 8px 0px;"
+        :collapsed-trigger-style="`right:${collapsedHide ? -15 : 0}px;`"
+      >
+        <div
+          class="w-full py-2 flex justify-center items-center overflow-hidden"
+        >
+          <img
+            class="block w-10 h-10 shadow rounded-2"
+            :src="logo"
+            alt=""
+            srcset=""
+          />
           <span class="ml-2 text-5 font-bold" v-if="!collapsed">lozyhao</span>
         </div>
-        <n-menu v-model:value="activeKey" :collapsed="collapsed" :collapsed-width="64" :collapsed-icon-size="22"
-          :options="menuOptions" @update:value="(key) => navigatorTo(key)" />
+        <n-menu
+          v-model:value="activeKey"
+          :collapsed="collapsed"
+          :collapsed-width="64"
+          :collapsed-icon-size="22"
+          :options="menuOptions"
+          @update:value="(key) => navigatorTo(key)"
+        />
       </n-layout-sider>
       <n-layout-content content-style="padding: 0;">
         <router-view class="router-view"></router-view>
@@ -86,7 +134,7 @@ watch(
     padding: 10px 0;
     border-right: 1px solid #eee;
 
-    &>strong {
+    & > strong {
       display: block;
       width: 40px;
       text-align: center;
