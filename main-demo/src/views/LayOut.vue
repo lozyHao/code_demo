@@ -38,6 +38,16 @@ const menuOptions = [
     key: "video-snapshot",
     icon: renderIcon(CropOutline),
   },
+  {
+    label: "canvas 小案例",
+    key: "canvas-case",
+    icon: renderIcon(CropOutline),
+  },
+  {
+    label: "canvas 烟花",
+    key: "canvas-fireworks",
+    icon: renderIcon(CropOutline),
+  },
 ];
 
 const navigatorTo = (key) => {

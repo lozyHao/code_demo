@@ -27,6 +27,16 @@ const routes = [
         name: "video-snapshot",
         component: () => import("@/views/VideoSnapshot/VideoSnapshot.vue"),
       },
+      {
+        path: "canvas-case",
+        name: "canvas-case",
+        component: () => import("@/views/CanvasCase/CanvasCase.vue"),
+      },
+      {
+        path: "canvas-fireworks",
+        name: "canvas-fireworks",
+        component: () => import("@/views/CanvasFireworks/CanvasFireworks.vue"),
+      },
     ],
   },
 ];
