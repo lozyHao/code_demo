@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Canvas Square Progress Bar</title>
+    <style>
+      canvas {
+        border: 1px solid #000;
+      }
+    </style>
+  </head>
+  <body>
+    <canvas id="progressCanvas" width="202" height="202"></canvas>
+    <script>
+      let canvas = document.getElementById("progressCanvas");
+      let ctx = canvas.getContext("2d");
+      let progress = 50; // 当前进度
+      let size = 200; // 正方形边长
+      let radius = 20; // 圆角半径
+
+      function drawSquareProgressBar(progress) {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+        // 绘制背景正方形
+        ctx.fillStyle = "#f0f0f0";
+        ctx.beginPath();
+        ctx.moveTo(radius, 0);
+        ctx.lineTo(size - radius, 0);
+        ctx.arcTo(size, 0, size, radius, radius);
+        ctx.lineTo(size, size - radius);
+        ctx.arcTo(size, size, size - radius, size, radius);
+        ctx.lineTo(radius, size);
+        ctx.arcTo(0, size, 0, size - radius, radius);
+        ctx.lineTo(0, radius);
+        ctx.arcTo(0, 0, radius, 0, radius);
+        ctx.closePath();
+        ctx.fill();
+
+        // 绘制进度条
+        ctx.fillStyle = "#3498db";
+        let progressWidth = (progress / 100) * (size - 2 * radius);
+        ctx.fillRect(radius, 0, progressWidth, size);
+
+        // 绘制圆角
+        ctx.fillStyle = "#3498db";
+        ctx.beginPath();
+        ctx.arc(radius, radius, radius, -Math.PI, -Math.PI / 2);
+        ctx.fill();
+        ctx.beginPath();
+        ctx.arc(size - radius, radius, radius, -Math.PI / 2, 0);
+        ctx.fill();
+        ctx.beginPath();
+        ctx.arc(size - radius, size - radius, radius, 0, Math.PI / 2);
+        ctx.fill();
+        ctx.beginPath();
+        ctx.arc(radius, size - radius, radius, Math.PI / 2, Math.PI);
+        ctx.fill();
+      }
+
+      drawSquareProgressBar(progress);
+    </script>
+  </body>
+</html>
