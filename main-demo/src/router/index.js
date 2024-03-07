@@ -37,6 +37,11 @@ const routes = [
         name: "canvas-fireworks",
         component: () => import("@/views/CanvasFireworks/CanvasFireworks.vue"),
       },
+      {
+        path: "chat-room",
+        name: "chat-room",
+        component: () => import("@/views/ChatRoom/ChatRoom.vue"),
+      },
     ],
   },
 ];

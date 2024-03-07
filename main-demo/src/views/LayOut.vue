@@ -6,7 +6,10 @@ import {
   Analytics,
   ContrastOutline,
   CropOutline,
+  FlowerOutline,
 } from "@vicons/ionicons5";
+import { DrawShape24Regular } from "@vicons/fluent";
+import { MessageCircle2 } from "@vicons/tabler";
 import { ref, watch } from "vue";
 import { useRoute } from "vue-router";
 import router from "@/router/index.js";
@@ -41,12 +44,17 @@ const menuOptions = [
   {
     label: "canvas 小案例",
     key: "canvas-case",
-    icon: renderIcon(CropOutline),
+    icon: renderIcon(DrawShape24Regular),
   },
   {
     label: "canvas 烟花",
     key: "canvas-fireworks",
-    icon: renderIcon(CropOutline),
+    icon: renderIcon(FlowerOutline),
+  },
+  {
+    label: "模拟聊天框",
+    key: "chat-room",
+    icon: renderIcon(MessageCircle2),
   },
 ];
 
