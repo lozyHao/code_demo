@@ -8,7 +8,7 @@ import {
   CropOutline,
   FlowerOutline,
 } from "@vicons/ionicons5";
-import { DrawShape24Regular } from "@vicons/fluent";
+import { DrawShape24Regular, DrawImage20Regular } from "@vicons/fluent";
 import { MessageCircle2 } from "@vicons/tabler";
 import { ref, watch } from "vue";
 import { useRoute } from "vue-router";
@@ -55,6 +55,11 @@ const menuOptions = [
     label: "模拟聊天框",
     key: "chat-room",
     icon: renderIcon(MessageCircle2),
+  },
+  {
+    label: "canvas 截图画板",
+    key: "drawing",
+    icon: renderIcon(DrawImage20Regular),
   },
 ];
 
