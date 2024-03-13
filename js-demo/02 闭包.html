@@ -1,0 +1,31 @@
+<html>
+  <head>
+    <title>02闭包</title>
+  </head>
+  <body>
+    <script>
+      //   let i = 0;
+      //   function fn() {
+      //     i++;
+      //     console.log(i);
+      //   }
+      //   fn();
+      //   fn();
+      //   fn();
+      //   fn();
+
+      function fn() {
+        let i = 0;
+        return () => {
+          i++;
+          console.log(i);
+        };
+      }
+      let fn0 = fn();
+      fn0(); // 1
+      fn0(); // 2
+      fn0(); // 3
+      fn0(); // 4
+    </script>
+  </body>
+</html>

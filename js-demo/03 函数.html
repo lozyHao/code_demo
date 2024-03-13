@@ -1,0 +1,116 @@
+<html>
+  <head>
+    <title>03 函数</title>
+  </head>
+  <body>
+    <script>
+      // 动态参数：arguments
+      function getSum() {
+        var sum = 0;
+        console.log("动态参数：", arguments); // 伪数组 [Arguments][1, 2, 3, 4, 5]
+        for (var i = 0; i < arguments.length; i++) {
+          sum += arguments[i];
+        }
+        return sum;
+      }
+      console.log(getSum(1, 2, 3, 4, 5)); // 15
+
+      //   剩余参数
+      function getSum2(...args) {
+        var sum = 0;
+        console.log("剩余参数：", args); // [1, 2, 3, 4, 5]
+        for (var i = 0; i < args.length; i++) {
+          sum += args[i];
+        }
+        return sum;
+      }
+      console.log(getSum2(1, 2, 3, 4, 5)); // 15
+
+      //   剩余参数
+      function getSum3(a, b, ...args) {
+        var sum = 0;
+        console.log("剩余参数：", args); // [3, 4, 5]
+        for (var i = 0; i < args.length; i++) {
+          sum += args[i];
+        }
+        return sum;
+      }
+      console.log(getSum3(1, 2, 3, 4, 5)); // 12
+
+      //   箭头函数;
+      const fn1 = () => {
+        return 2;
+      };
+      const fn2 = (a) => {
+        return a;
+      };
+      const fn5 = (d) => d;
+
+      function getNum() {
+        return (() => {
+          console.log(arguments.length);
+        })();
+      }
+      console.log(getNum(5, 5, 5)); // 3
+      const fn6 = (username) => ({
+        name: username,
+      });
+      console.log(fn6("小明"));
+
+      //   this
+      console.log(this); // window
+      function fn7() {
+        console.log(this);
+      }
+      fn7(); // window
+
+      const obj = {
+        num: 11,
+        fn: function () {
+          console.log(this); // obj
+          let num = 22;
+          const obj2 = {
+            num: 33,
+            fn2: () => {
+              console.log(this); // obj
+            },
+          };
+          obj2.fn2();
+        },
+      };
+      obj.fn();
+
+      const obj1 = {
+        num: 11,
+        fn: () => {
+          console.log(this); // window
+          let num = 22;
+          const obj2 = {
+            num: 33,
+            fn2: () => {
+              console.log(this); // window
+            },
+          };
+          obj2.fn2();
+        },
+      };
+      obj1.fn();
+
+      const obj3 = {
+        num: 11,
+        fn: () => {
+          console.log(this); // window
+          let num = 22;
+          const obj2 = {
+            num: 33,
+            fn2: function () {
+              console.log(this); // obj2
+            },
+          };
+          obj2.fn2();
+        },
+      };
+      obj3.fn();
+    </script>
+  </body>
+</html>
