@@ -47,6 +47,11 @@ const routes = [
         name: "drawing",
         component: () => import("@/views/canvasDrawing/canvasDrawing.vue"),
       },
+      {
+        path: "auth-code",
+        name: "auth-code",
+        component: () => import("@/views/AuthCode/AuthCode.vue"),
+      },
     ],
   },
 ];

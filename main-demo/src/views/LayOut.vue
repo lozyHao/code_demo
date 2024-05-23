@@ -7,6 +7,7 @@ import {
   ContrastOutline,
   CropOutline,
   FlowerOutline,
+  BarcodeOutline,
 } from "@vicons/ionicons5";
 import { DrawShape24Regular, DrawImage20Regular } from "@vicons/fluent";
 import { MessageCircle2 } from "@vicons/tabler";
@@ -60,6 +61,11 @@ const menuOptions = [
     label: "canvas 截图画板",
     key: "drawing",
     icon: renderIcon(DrawImage20Regular),
+  },
+  {
+    label: "验证码",
+    key: "auth-code",
+    icon: renderIcon(BarcodeOutline),
   },
 ];
 
