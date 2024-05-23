@@ -6,6 +6,8 @@ import treeScenery03 from "@/assets/img/tree_scenery03.jpg";
 import { ref } from "vue";
 import { useMessage } from "naive-ui";
 
+const emits = defineEmits(["onSuccess", "onFail"]);
+
 const message = useMessage();
 const images = [treeScenery01, treeScenery02, treeScenery03];
 const slideRef = ref(null);
@@ -13,10 +15,12 @@ const slideRef = ref(null);
 // 成功回调
 const onSuccess = () => {
   message.success("恭喜您，验证成功啦！");
+  emits("onSuccess");
 };
 // 失败回调
 const onFail = () => {
   message.error("很遗憾，验证失败，请重试哦！");
+  emits("onFail");
 };
 // 点击刷新回调
 const onRefresh = () => {
