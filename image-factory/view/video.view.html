@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Video Processing with Canvas</title>
+  </head>
+  <body>
+    <video id="video" controls></video>
+    <canvas id="canvas" style="display: none"></canvas>
+    <button id="startProcessing">Start Processing</button>
+    <script>
+      document
+        .getElementById("startProcessing")
+        .addEventListener("click", startProcessing);
+
+      const video = document.getElementById("video");
+      const canvas = document.getElementById("canvas");
+      const ctx = canvas.getContext("2d");
+
+      // 设置视频源
+      video.src = "../assets/videos/test.mp4"; // 替换为你的视频路径
+
+      let watermarkText = "Watermark Text";
+      let frameCount = 0;
+      const frameRate = 30;
+      const frameDuration = 1000 / frameRate;
+
+      function startProcessing() {
+        video.play();
+        video.addEventListener("seeked", captureFrame);
+      }
+
+      async function captureFrame() {
+        canvas.width = video.videoWidth;
+        canvas.height = video.videoHeight;
+
+        // 将视频帧绘制到 canvas
+        ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+
+        // 添加水印
+        ctx.font = "20px Arial";
+        ctx.fillStyle = "white";
+        ctx.textAlign = "end";
+        ctx.fillText(watermarkText, canvas.width - 10, canvas.height - 10);
+
+        // 将 canvas 数据转换为 Blob
+        const blob = await canvas
+          .captureStream()
+          .getVideoTracks()[0]
+          .stream.getBlob();
+        const url = URL.createObjectURL(blob);
+
+        // 创建新的视频 Blob URL
+        if (frameCount === 0) {
+          const videoBlob = new Blob([blob], { type: "video/webm" });
+          const videoUrl = URL.createObjectURL(videoBlob);
+          downloadVideo(videoUrl, "watermarked-video.webm");
+        } else {
+          // 将新的帧添加到现有的视频 Blob
+          // 注意：这里只是一个示例，实际上你需要使用更复杂的逻辑来处理视频帧的合并
+          const videoBlob = new Blob([blob], { type: "video/webm" });
+          const videoUrl = URL.createObjectURL(videoBlob);
+          downloadVideo(videoUrl, "frame-" + frameCount + ".jpg"); // 保存为图片
+        }
+
+        frameCount++;
+
+        if (!video.ended) {
+          video.currentTime += 1 / frameRate;
+        }
+      }
+
+      function downloadVideo(url, filename) {
+        const a = document.createElement("a");
+        a.href = url;
+        a.download = filename;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+      }
+    </script>
+  </body>
+</html>
