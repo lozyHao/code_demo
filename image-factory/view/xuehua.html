@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>飘落雪花</title>
+    <style>
+      body {
+        margin: 0;
+        overflow: hidden;
+      }
+      canvas {
+        display: block;
+        background: rgb(93, 140, 151);
+      }
+    </style>
+  </head>
+  <body>
+    <canvas id="snowCanvas" width="1000" height="400"></canvas>
+
+    <script>
+      var canvas = document.getElementById("snowCanvas");
+      var ctx = canvas.getContext("2d");
+
+      varflakes = [];
+      var maxFlakes = 100; // 最大雪花数量
+      var flakeSize = 4; // 雪花大小
+
+      function snow() {
+        // 每次动画循环都会清除画布
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+        // 循环绘制每一片雪花
+        for (var i = 0; i < maxFlakes; i++) {
+          if (varflakes.length < maxFlakes) {
+            varflakes.push({
+              x: Math.random() * canvas.width,
+              y: -Math.random() * canvas.height,
+              size: Math.random() * 3 + 1, // 随机大小
+              speed: Math.random() * 2 + 0.5, // 随机速度
+              dx: 0.1,
+              dy: flakeSize + Math.random(), // 随机下降速度
+            });
+          }
+
+          var flake = varflakes[i];
+          if (!flake) {
+            continue;
+          }
+          // 绘制雪花
+          ctx.fillStyle = `white`;
+          // 雪花高斯模糊
+          ctx.filter = "blur(1px)";
+          ctx.beginPath();
+          ctx.arc(flake.x, flake.y, flake.size, 0, Math.PI * 2);
+          ctx.fill();
+
+          // 更新雪花位置
+          flake.x += flake.dx;
+          flake.y += flake.dy / 2;
+
+          // 如果雪花到达底部，则重置其位置
+          if (flake.y > canvas.height + 20) {
+            varflakes.splice(i, 1);
+          }
+        }
+
+        // 递归调用snow来实现动画
+        requestAnimationFrame(snow);
+      }
+
+      // 开始动画循环
+      snow();
+    </script>
+  </body>
+</html>
