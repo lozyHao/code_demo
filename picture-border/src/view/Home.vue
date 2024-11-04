@@ -38,12 +38,12 @@ const handleDrawBg = async () => {
 	const img = new Image();
 	img.src = URL.createObjectURL(imageData.value)
 	img.onload = async () => {
-		const canvasDraw = new CanvasDraw(img.width, img.height);
+		const canvasDraw = new CanvasDraw(img.width * 0.5, img.height * 0.5);
 		// 绘制背景图
-		await canvasDraw.drawBlurImage(imageData.value, img.width, img.height)
+		await canvasDraw.drawBlurImage(imageData.value, img.width * 0.5, img.height * 0.5)
 		// 绘制主图
 		// const imageDataURL = await canvasDraw.drawImage(imageData.value, img.width, img.height)
-		const imageDataURL = await canvasDraw.drawMainImage(imageData.value, img.width, img.height)
+		const imageDataURL = await canvasDraw.drawMainImage(imageData.value, img.width * 0.5, img.height * 0.5)
 		console.log(imageDataURL);
 
 		// 添加到页面
@@ -56,7 +56,7 @@ const handleDrawBg = async () => {
 
 <template>
 	<div class="home">
-		<div class="img-box">
+		<div class="img-box w-full flex justify-center items-center py-4">
 			<img :src="imgUrl" v-if="imgUrl" />
 		</div>
 		<div class="w-40 h-10 flex justify-center items-center bg-red mx-auto rounded-full relative">
@@ -82,18 +82,9 @@ const handleDrawBg = async () => {
 </template>
 
 <style lang="less" scoped>
-.img-box {
-	width: 100vw;
-	height: 60vh;
-	display: flex;
-	justify-content: center;
-	align-items: center;
-	margin: 20px auto;
-}
-
 img {
-	width: 100vw;
-	height: 50vh;
+	width: 100%;
+	height: 30vh;
 	object-fit: contain;
 }
 </style>
