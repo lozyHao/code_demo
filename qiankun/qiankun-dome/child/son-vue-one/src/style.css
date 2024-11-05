@@ -1,0 +1,16 @@
+
+body {
+  margin: 0;
+  display: flex;
+  place-items: center;
+}
+
+
+.card {
+  padding: 2em;
+}
+
+#app-one {
+  width: 100vw;
+  height: calc(100vh - 100px);
+}
