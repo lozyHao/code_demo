@@ -7,6 +7,7 @@ import CanvasDraw from "@/util/canvasDraw";
 import GroupFactory from "@/util/createFactory";
 
 const imgUrl = ref("")
+const imgPreUrl = ref("")
 const imageData = ref<File>(null)
 
 const exifList = ref<{ [key: string]: string }[]>([])
@@ -43,13 +44,15 @@ const handleDrawBg = async () => {
 		await canvasDraw.drawBlurImage(imageData.value, img.width * 0.5, img.height * 0.5)
 		// 绘制主图
 		// const imageDataURL = await canvasDraw.drawImage(imageData.value, img.width, img.height)
-		const imageDataURL = await canvasDraw.drawMainImage(imageData.value, img.width * 0.5, img.height * 0.5)
-		console.log(imageDataURL);
+		await canvasDraw.drawMainImage(imageData.value, img.width * 0.5, img.height * 0.5)
+
+		// 绘制文字
+		await canvasDraw.drawImage('/src/assets/images/logo.jpg', img.height * 0.55 * 0.06, img.height * 0.55 * 0.06, img.width * (0.25 * (1 - 0.03)), img.height * 0.50)
+		// canvasDraw.drawText("Nikon", 'Arial', img.width * 0.25, img.height * 0.53, "#ffffff", img.height * 0.55 * 0.06, 'bold', 'center')
+		const imageDataURL = canvasDraw.drawText("135mm f/1.8 200s ISO200", 'Arial', img.width * 0.25, img.height * 0.56, "#ffffff", img.height * 0.55 * 0.04, 'normal', 'center')
 
 		// 添加到页面
-		const image = document.createElement('img')
-		image.src = imageDataURL
-		document.body.appendChild(image)
+		imgPreUrl.value = imageDataURL
 	}
 }
 </script>
@@ -58,6 +61,7 @@ const handleDrawBg = async () => {
 	<div class="home">
 		<div class="img-box w-full flex justify-center items-center py-4">
 			<img :src="imgUrl" v-if="imgUrl" />
+			<img :src="imgPreUrl" v-if="imgPreUrl" />
 		</div>
 		<div class="w-40 h-10 flex justify-center items-center bg-red mx-auto rounded-full relative">
 			<input class="opacity-0 w-full h-full cursor-pointer absolute" type="file"
@@ -82,9 +86,14 @@ const handleDrawBg = async () => {
 </template>
 
 <style lang="less" scoped>
+.home {
+	background: #eee;
+}
+
 img {
-	width: 100%;
+	width: auto;
 	height: 30vh;
 	object-fit: contain;
+	margin: 0 20px;
 }
 </style>

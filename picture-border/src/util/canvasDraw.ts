@@ -4,11 +4,13 @@ class CanvasDraw {
 	ctx: CanvasRenderingContext2D;
 	width: number = 400;
 	height: number = 600;
+	borderRotate: number = 0.15
+	fontRotate: number = 0.2
 
 	constructor(width: number, height: number) {
 		this.canvas = document.createElement("canvas");
 		this.width = width;
-		this.height = height;
+		this.height = height * (1 + this.borderRotate);
 		this.canvas.width = this.width;
 		this.canvas.height = this.height;
 		this.ctx = this.canvas.getContext("2d") as CanvasRenderingContext2D;
@@ -88,13 +90,17 @@ class CanvasDraw {
 		textAlign: CanvasTextAlign
 	) {
 		this.ctx.save();
-
+		console.log(text, x, y, color, fontSize, fontWeight, textAlign);
 		this.ctx.fillStyle = color;
-		this.ctx.font = `${fontWeight} ${fontSize}px ${font}`;
+		this.ctx.font = `italic ${fontWeight} ${fontSize}px ${font}`;
 		this.ctx.textAlign = textAlign;
+
+		console.log("绘制文本宽度/高度", this.ctx.measureText(text).width, fontSize * 1.2)
 		this.ctx.fillText(text, x, y);
 
 		this.ctx.restore();
+
+		return this.canvas.toDataURL();
 	}
 
 	/**
@@ -107,20 +113,19 @@ class CanvasDraw {
 	 */
 
 	async drawImage(
-		image: File,
+		image: string,
 		width: number = this.width,
 		height: number = this.height,
 		x: number = 0,
 		y: number = 0,
-		rotate: number = 0.8
 	) {
 		const img = new Image();
-		img.src = URL.createObjectURL(image);
+		img.src = image;
 		return await new Promise((resolve) => {
 			img.onload = () => {
-				const bx = x + (width * (1 - rotate)) / 2;
-				const by = y + (height * (1 - rotate)) / 2;
-				this.ctx.drawImage(img, bx, by, width * rotate, height * rotate);
+				const bx = x;
+				const by = y;
+				this.ctx.drawImage(img, bx, by, width, height);
 
 				resolve(this.canvas.toDataURL());
 			};
@@ -147,10 +152,10 @@ class CanvasDraw {
 				this.ctx.filter = `blur(${blur}px)`;
 				this.ctx.drawImage(
 					img,
-					width * -0.2,
-					height * -0.2,
-					width * 1.4,
-					height * 1.4
+					width * -0.3,
+					height * -0.3,
+					width * 1.6,
+					height * 1.6
 				);
 				this.ctx.filter = "none";
 
@@ -183,7 +188,10 @@ class CanvasDraw {
 				const by = (height * (1 - rotate)) / 2;
 				const imgWidth = width * rotate;
 				const imgHeight = height * rotate;
-				const rounded = Math.min(imgWidth, imgHeight) * 0.05
+				const rounded = Math.min(imgWidth, imgHeight) * 0.1
+
+				this.ctx.save();
+
 				// 绘制投影
 				this.ctx.shadowColor = "#333333";
 				this.ctx.shadowBlur = shadow;
@@ -213,7 +221,6 @@ class CanvasDraw {
 				this.ctx.fill();
 
 				if (rounded) {
-					this.ctx.save();
 
 					// 主图圆角裁切
 					this.ctx.beginPath();
@@ -248,6 +255,11 @@ class CanvasDraw {
 					// 恢复之前的绘图状态
 					this.ctx.restore();
 				}
+
+
+
+				// 绘制白底边框
+				// this.drawColorBackground('#ffffff', 0, height, width, height * this.borderRotate);
 
 				resolve(this.canvas.toDataURL());
 			};
