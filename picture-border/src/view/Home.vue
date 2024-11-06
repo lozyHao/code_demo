@@ -4,7 +4,7 @@ import { ref } from "vue";
 
 import ExifFactory from "@/util/exifFactory";
 import CanvasDraw from "@/util/canvasDraw";
-import GroupFactory from "@/util/createFactory";
+import GroupFactory, { ImageTextItem } from "@/util/createFactory";
 
 const imgUrl = ref("")
 const imgPreUrl = ref<string[]>([])
@@ -147,6 +147,41 @@ const handleDrawBg3 = async () => {
 		imgPreUrl.value.push(imageDataURL)
 	}
 }
+
+// 图文结合绘制在一排
+const handleDrawTextWidthImage = async (type: string = 'left') => {
+	const img = new Image();
+	img.src = URL.createObjectURL(imageData.value)
+	img.onload = async () => {
+		const size = img.height * 0.55 * 0.04 // 字体大小、图片高度
+
+		const canvasDraw = new CanvasDraw(img.width * 0.5, img.height * 0.5, 0);
+		const createFactory = new GroupFactory(canvasDraw)
+		// 绘制主图
+		await canvasDraw.drawMainImage(imageData.value, img.width * 0.5, img.height * 0.5, 1, 1, 10)
+
+		// 设置内容
+		const items: ImageTextItem = [
+			{
+				type: 'image',
+				content: "/src/assets/images/logo.jpg",
+			},
+			{
+				type: 'text',
+				content: "Nikon Z 6_2",
+			}, {
+				type: 'image',
+				content: "/src/assets/images/huawei.svg",
+			}
+		]
+
+		// 绘制
+		const imageDataURL: string = await createFactory.drawItems(items, type, size)
+
+		// 添加到页面
+		imgPreUrl.value.push(imageDataURL)
+	}
+}
 </script>
 
 <template>
@@ -167,6 +202,10 @@ const handleDrawBg3 = async () => {
 			<n-button type="info" :disabled="!imageData" @click="handleDrawBg2">透明边框</n-button>
 			<n-button type="info" :disabled="!imageData" @click="handleDrawBg21">透明边框-1</n-button>
 			<n-button type="info" :disabled="!imageData" @click="handleDrawBg3">内部水印</n-button>
+			<n-button type="info" :disabled="!imageData" @click="handleDrawTextWidthImage('left')">图文组合绘制-左</n-button>
+			<n-button type="info" :disabled="!imageData"
+				@click="handleDrawTextWidthImage('center')">图文组合绘制-中心</n-button>
+			<n-button type="info" :disabled="!imageData" @click="handleDrawTextWidthImage('right')">图文组合绘制-右</n-button>
 		</n-space>
 
 		<div class="grid grid-cols-3 py-10">

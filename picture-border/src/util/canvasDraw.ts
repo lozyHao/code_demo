@@ -31,11 +31,10 @@ class CanvasDraw {
 	 */
 
 	async getImageURL(
-		image: File
+		image: File | string
 	): Promise<{ width: number; height: number; url: string }> {
 		const img = new Image();
-		img.src = URL.createObjectURL(image);
-
+		img.src = typeof image === "string" ? image : URL.createObjectURL(image as File);
 		return await new Promise((resolve) => {
 			img.onload = () => {
 				resolve({
@@ -93,6 +92,7 @@ class CanvasDraw {
 		this.ctx.fillStyle = color;
 		this.ctx.font = `italic ${fontWeight} ${fontSize}px ${font}`;
 		this.ctx.textAlign = textAlign;
+		this.ctx.textBaseline = "middle";
 
 		console.log("绘制文本宽度/高度", this.ctx.measureText(text).width, fontSize * 1.2)
 		this.ctx.fillText(text, x, y);
