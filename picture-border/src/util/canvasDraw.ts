@@ -4,13 +4,12 @@ class CanvasDraw {
 	ctx: CanvasRenderingContext2D;
 	width: number = 400;
 	height: number = 600;
-	borderRotate: number = 0.15
 	fontRotate: number = 0.2
 
-	constructor(width: number, height: number) {
+	constructor(width: number, height: number, borderRotate: number = 0.15) {
 		this.canvas = document.createElement("canvas");
 		this.width = width;
-		this.height = height * (1 + this.borderRotate);
+		this.height = height * (1 + borderRotate);
 		this.canvas.width = this.width;
 		this.canvas.height = this.height;
 		this.ctx = this.canvas.getContext("2d") as CanvasRenderingContext2D;
@@ -178,7 +177,8 @@ class CanvasDraw {
 		width: number,
 		height: number,
 		rotate: number = 0.9,
-		shadow: number = 100
+		shadow: number = 100,
+		rounded: number = Math.min(width * rotate, height * rotate) * 0.1
 	) {
 		const img = new Image();
 		img.src = URL.createObjectURL(image);
@@ -188,7 +188,7 @@ class CanvasDraw {
 				const by = (height * (1 - rotate)) / 2;
 				const imgWidth = width * rotate;
 				const imgHeight = height * rotate;
-				const rounded = Math.min(imgWidth, imgHeight) * 0.1
+				// const rounded = Math.min(imgWidth, imgHeight) * 0.1
 
 				this.ctx.save();
 
@@ -255,11 +255,6 @@ class CanvasDraw {
 					// 恢复之前的绘图状态
 					this.ctx.restore();
 				}
-
-
-
-				// 绘制白底边框
-				// this.drawColorBackground('#ffffff', 0, height, width, height * this.borderRotate);
 
 				resolve(this.canvas.toDataURL());
 			};
