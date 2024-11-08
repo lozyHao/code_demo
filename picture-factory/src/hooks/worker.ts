@@ -1,3 +1,6 @@
+// declare function importScripts(...scripts: string[]): void;
+// importScripts('/')  只能导入 (() => {})() 格式的函数
+
 // worker.ts
 self.onmessage = (event) => {
 	const { data, currentFiles, callbackId } = event.data;

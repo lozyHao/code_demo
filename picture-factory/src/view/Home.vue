@@ -4,7 +4,9 @@ import { ref } from "vue";
 
 import ExifFactory from "@/util/exifFactory";
 import CanvasDraw from "@/util/canvasDraw";
+import OffscreenCanvasDraw from "@/util/offScreenCanvasDraw";
 import GroupFactory, { ImageTextItem } from "@/util/createFactory";
+import WorkerManager from '../hooks/WorkerManager';
 
 const imgUrl = ref("")
 const imgPreUrl = ref<string[]>([])
@@ -30,19 +32,21 @@ const handleParse = async () => {
 // 白色边框
 const handleDrawBg1 = async () => {
 	const img = new Image();
-	img.src = URL.createObjectURL(imageData.value)
+	img.src = URL.createObjectURL(imageData.value as File)
+
 	img.onload = async () => {
-		const canvasDraw = new CanvasDraw(img.width * 0.5, img.height * 0.5);
+		const size = img.width * 0.06 // 字体大小、图片高度
+		const canvasDraw = new CanvasDraw(img.width, img.height);
 		// 绘制背景图
-		await canvasDraw.drawBlurImage(imageData.value, img.width * 0.5, img.height * 0.5)
+		await canvasDraw.drawBlurImage(imageData.value, img.width, img.height)
 		// 绘制主图
-		await canvasDraw.drawMainImage(imageData.value, img.width * 0.5, img.height * 0.5)
+		await canvasDraw.drawMainImage(imageData.value, img.width, img.height)
 
 		// 绘制白底边框
-		canvasDraw.drawColorBackground('#ffffff', 0, img.height * 0.5, img.width * 0.5, img.height * 0.5 * 0.15);
+		canvasDraw.drawColorBackground('#ffffff', 0, img.height, img.width, img.height * 0.15);
 
 		// 绘制文字
-		const imageDataURL: string = canvasDraw.drawText("Nikon", 'Arial', img.width * 0.25, img.height * 0.55, "#000000", img.height * 0.55 * 0.06, 'bold', 'center')
+		const imageDataURL: string = canvasDraw.drawText("Nikon", 'Arial', img.width * 0.5, img.height * 1.1, "#000000", size, 'bold', 'center')
 
 		// 添加到页面
 		imgPreUrl.value.push(imageDataURL)
@@ -183,10 +187,64 @@ const handleDrawTextWidthImage = async (type: string = 'left') => {
 		imgPreUrl.value.push(imageDataURL)
 	}
 }
+
+
+// 离屏绘制
+// 透明边框
+const handleOffscreenCanvas = async () => {
+	const img = new Image();
+	img.src = URL.createObjectURL(imageData.value as File)
+	img.onload = async () => {
+		const canvasDraw = new OffscreenCanvasDraw(img.width, img.height);
+		// 绘制背景图
+		await canvasDraw.drawBlurImage(img.src, img.width, img.height)
+		// 绘制主图
+		await canvasDraw.drawMainImage(img.src, img.width, img.height)
+
+		// 绘制文字
+		await canvasDraw.drawText("Nikon", 'Arial', img.width * 0.05, img.height * 1.1, "#ffffff", img.height * 0.06, 'bold', 'left')
+		const imageDataURL = await canvasDraw.drawText("135mm f/1.8 200s ISO200", 'Arial', img.width * 0.95, img.height * 1.1, "#ffffff", img.height * 0.04, 'normal', 'right')
+
+		// 添加到页面
+		imgPreUrl.value.push(imageDataURL)
+	}
+}
+
+// 离屏渲染 + Worker
+const handleOffscreenCanvasWorker = async () => {
+
+	const img = new Image();
+	// Worker环境中，不允许DOM相关操作，将图片文件转为 blob 
+	const src = URL.createObjectURL(imageData.value as File)
+	img.src = src
+
+	img.onload = async () => {
+		// blob 转 imageBitmap
+		const imageBitmap = await createImageBitmap(img)
+		const { width, height } = imageBitmap
+		console.log(imageBitmap, imageBitmap.width, imageBitmap.height)
+		const worker = new WorkerManager();
+		worker.createWorker("draw", new URL("../hooks/drawWorker.ts", import.meta.url).href);
+		worker.postMessage("draw", { img: imageBitmap, width: width ?? img.width, height: height ?? img.height }, (message: any) => {
+			console.log("接收到的数据", message);
+
+			imgPreUrl.value.push(message)
+		});
+	}
+}
+
+// const count = ref(1);
+// setInterval(() => {
+// 	count.value += 1
+// 	console.log(count.value)
+// }, 500);
 </script>
 
 <template>
 	<div class="home">
+		<!-- <div class="flex justify-center">
+			<n-button class='w-20' type="info" @click="count++">{{ count }}</n-button>
+		</div> -->
 		<div class="img-box w-full flex justify-center items-center py-4">
 			<img class="h-50 w-full object-contain" :src="imgUrl" v-if="imgUrl" />
 		</div>
@@ -207,6 +265,8 @@ const handleDrawTextWidthImage = async (type: string = 'left') => {
 			<n-button type="info" :disabled="!imageData"
 				@click="handleDrawTextWidthImage('center')">图文组合绘制-中心</n-button>
 			<n-button type="info" :disabled="!imageData" @click="handleDrawTextWidthImage('right')">图文组合绘制-右</n-button>
+			<n-button type="info" :disabled="!imageData" @click="handleOffscreenCanvas">离屏绘制</n-button>
+			<n-button type="info" :disabled="!imageData" @click="handleOffscreenCanvasWorker">离屏渲染+Worker</n-button>
 		</n-space>
 
 		<div class="grid grid-cols-3 py-10">
