@@ -1,0 +1,32 @@
+{
+	"productName": "LozyHao",
+	"appId": "LozyHao.dome",
+	"copyright": "LozyHao.dome ©2024 All copyRight",
+	"compression": "maximum",
+	"asar": true,
+	"directories": {
+		"output": "dist-release/"
+	},
+	"nsis": {
+		"oneClick": false,
+		"allowToChangeInstallationDirectory": true,
+		"perMachine": true,
+		"deleteAppDataOnUninstall": true,
+		"createDesktopShortcut": true,
+		"createStartMenuShortcut": true,
+		"shortcutName": "LozyHao"
+	},
+	"win": {
+		"icon": "./public/icon.ico",
+		"artifactName": "${productName}-v${version}-${platform}-setup.${ext}",
+		"target": [
+			{
+				"target": "nsis"
+			}
+		]
+	},
+	"mac": {
+		"icon": "./public/icon.icns",
+		"artifactName": "${productName}-v${version}-${platform}-setup.${ext}"
+	}
+}
