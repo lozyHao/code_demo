@@ -9,6 +9,14 @@ const routes = [
 		path: "/import-image",
 		name: "importImage",
 		component: () => import("@/view/ImportImage.vue"),
+	}, {
+		path: "/canvas-font",
+		name: "canvasFont",
+		component: () => import("@/view/CanvasFont.vue"),
+	}, {
+		path: "/canvas-sign",
+		name: "canvasSign",
+		component: () => import("@/view/CanvasSign.vue")
 	}
 ];
 
