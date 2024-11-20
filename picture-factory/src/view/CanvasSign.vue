@@ -4,91 +4,115 @@ import fzLan from '../assets/fonts/fz_lan.ttf'
 import fz from '../assets/fonts/fz.ttf'
 import zh from '../assets/fonts/zh.ttf'
 
-import { ref } from 'vue';
+import { nextTick, onMounted, ref } from 'vue';
+import { useMessage } from 'naive-ui';
 
-const fontList: { name: string, src: string }[] = [
+const fontList = ref<{ label: string, value: string, key: string }[]>([
 	{
-		name: 'zh',
-		src: zh
+		label: 'zh',
+		value: 'zh',
+		key: zh
 	}, {
-		name: 'fz_bold',
-		src: fzBold
+		label: 'fz_bold',
+		value: 'fz_bold',
+		key: fzBold
 	}, {
-		name: 'fz_lan',
-		src: fzLan
+		label: 'fz_lan',
+		value: 'fz_lan',
+		key: fzLan
 	}, {
-		name: 'fz',
-		src: fz
+		label: 'fz',
+		value: 'fz',
+		key: fz
 	}
-]
-const index = ref<number>(0)
+])
 
+const message = useMessage()
+
+const canvas = ref<HTMLCanvasElement | null>(null)
+const ctx = ref<CanvasRenderingContext2D | null>(null)
+
+const maxlength = ref(60)
+const font = ref('fz')
+const fontSize = ref(40)
 const italic = ref(false)
 const bold = ref(false)
 const color = ref('#000000')
 const letterSpace = ref(0)
 const wordSpace = ref(0)
 
-const text = ref(null)
+const text = ref<string>('')
 
-// 方式一：canvas
-const fontSize = ref(40)
+// 初始化
+const init = () => {
+	if (!canvas.value) return
+
+	ctx.value = canvas.value.getContext('2d') as CanvasRenderingContext2D;
+	ctx.value.clearRect(0, 0, canvas.value.width, canvas.value.height);
+	canvas.value.height = 0
+}
 
 const draw = (text: string) => {
-	// 校验text是否存在中文
-	if (/[\u4e00-\u9fa5]/.test(text)) {
-		console.log('有中文');
-	}
-	const canvas = document.getElementById('canvas') as HTMLCanvasElement;
-	const ctx = canvas.getContext('2d') as CanvasRenderingContext2D;
-	ctx.clearRect(0, 0, canvas.width, canvas.height);
-	const { width, height } = getTextWidth()
-	canvas.width = width + 20
-	canvas.height = height
+	if (!canvas.value || !ctx.value) return
 
-	ctx.textBaseline = 'middle';
-	ctx.letterSpacing = `${letterSpace.value}px`;
-	ctx.wordSpacing = `${wordSpace.value}px`;
-	ctx.font = `${bold.value ? 'bold' : 'normal'} ${italic.value ? 'italic' : 'normal'} ${fontSize.value}px ${fontList[index.value].name}`;
-	ctx.fillStyle = color.value;
-	ctx.fillText(text, 10, canvas.height / 2);
+	if (text.trim().length !== 0) {
+		const { width, height } = getTextWidth()
+		canvas.value.width = width + 20
+		canvas.value.height = height
+	} else {
+		canvas.value.width = 0
+		canvas.value.height = 0
+	}
+
+	ctx.value.textBaseline = 'middle';
+	ctx.value.letterSpacing = `${letterSpace.value}px`;
+	ctx.value.wordSpacing = `${wordSpace.value}px`;
+	ctx.value.font = `${bold.value ? 'bold' : 'normal'} ${italic.value ? 'italic' : 'normal'} ${fontSize.value}px ${font.value}`;
+	ctx.value.fillStyle = color.value;
+	ctx.value.fillText(text, 10, canvas.value.height / 2);
 }
 
 // 计算绘制的文字的宽高
-const getTextWidth = () => {
-	const canvas = document.createElement('canvas');
-	const ctx = canvas.getContext('2d') as CanvasRenderingContext2D;
-	ctx.letterSpacing = `${letterSpace.value}px`;
-	ctx.wordSpacing = `${wordSpace.value}px`;
-	ctx.font = `${bold.value ? 'bold' : 'normal'} ${italic.value ? 'italic' : 'normal'} ${fontSize.value}px ${fontList[index.value].name}`;
+const getTextWidth = (): { width: number, height: number } => {
+	if (!ctx.value) {
+		return { width: 0, height: 0 }
+	}
+	ctx.value.letterSpacing = `${letterSpace.value}px`;
+	ctx.value.wordSpacing = `${wordSpace.value}px`;
+	ctx.value.font = `${bold.value ? 'bold' : 'normal'} ${italic.value ? 'italic' : 'normal'} ${fontSize.value}px ${font.value}`;
 	return {
-		width: ctx.measureText(text.value || '').width,
-		height: ctx.measureText(text.value || '').actualBoundingBoxAscent * 2 / 1.2
+		width: ctx.value.measureText(text.value || '').width,
+		height: ctx.value.measureText(text.value || '').fontBoundingBoxAscent + ctx.value.measureText(text.value || '').fontBoundingBoxDescent * 2
 	};
 }
 
-
-const exportCanvas = () => {
-	const canvas = document.getElementById('canvas') as HTMLCanvasElement;
-	const dataUrl = canvas.toDataURL('image/png');
-	const a = document.createElement('a');
-	a.href = dataUrl;
-	a.download = 'sign.png';
-	a.click();
-}
-
-
 const onChange = () => {
-	draw(text.value ?? '')
-}
-const onChangeFont = (i: number) => {
-	index.value = i
+	if (!text.value) return
+	// 校验内容是否为全部空格
+	if (text.value.trim().length === 0) {
+		if (!canvas.value) return
+		canvas.value.getContext('2d')?.clearRect(0, 0, canvas.value.width, canvas.value.height);
+		canvas.value.height = 0
+
+		return
+	}
+
+	if (/[\u4e00-\u9fa5]/.test(text.value)) {
+		maxlength.value = 40
+		if (text.value.length > 40) {
+			text.value = text.value.slice(0, 40)
+			message.warning('内容过长')
+		}
+	} else {
+		maxlength.value = 60
+	}
+
 	draw(text.value ?? '')
 }
 
-const loadFont = () => {
+const loadFont = (fontList: { label: string, value: string, key: string }[]) => {
 	for (const item of fontList) {
-		const f = new FontFace(item.name, `url(${item.src})`, {
+		const f = new FontFace(item.value, `url(${item.key})`, {
 			style: 'normal',
 		});
 		f.load().then(() => {
@@ -98,35 +122,176 @@ const loadFont = () => {
 		})
 	}
 }
-loadFont()
+
+// 自定义上传字体加载
+const uploadFont = (e: Event) => {
+	const file = (e.target as HTMLInputElement).files?.[0]
+	if (!file) return
+
+	const name = file.name.split('.')[0].slice(0, 12)
+	// 如果名字存在中文
+	if (/[\u4e00-\u9fa5]/.test(name)) {
+		message.error('字体文件名不支持中文');
+		// 清空
+		(e.target as HTMLInputElement).value = ''
+		return
+	}
+	// 校验上传文件是否已经存在
+	const isExist = fontList.value.some(item => item.key === name)
+	if (isExist) {
+		message.error('字体已存在');
+		// 清空
+		(e.target as HTMLInputElement).value = ''
+		return
+	}
+
+	const reader = new FileReader()
+	reader.onload = () => {
+		if (reader.result) {
+			const f = new FontFace(name, `url(${reader.result})`, {
+				style: 'normal',
+			});
+			f.load().then(() => {
+				document.fonts.add(f);
+				// 添加到字体列表
+				fontList.value.unshift({ label: name, value: name, key: name })
+			}).catch(err => {
+				console.log(err);
+			}).finally(() => {
+				// 清空
+				(e.target as HTMLInputElement).value = ''
+			})
+		}
+	}
+	reader.readAsDataURL(file);
+}
+
+onMounted(() => {
+	loadFont(fontList.value)
+	nextTick(() => {
+		init()
+	})
+})
+
+
+// 导出绘制内容为图片的函数
+const exportDrawing = () => {
+	if (!canvas.value || !ctx.value) return
+
+	// 获取绘制内容的边界矩形
+	const { left, top, width, height } = getDrawingBounds();
+
+	// 创建一个新的Canvas，大小为绘制内容的边界矩形大小
+	const exportCanvas = document.createElement('canvas');
+	exportCanvas.width = width;
+	exportCanvas.height = height;
+	const exportCtx = exportCanvas.getContext('2d');
+	if (!exportCtx) return
+
+	// 将原Canvas中的绘制内容复制到新的Canvas中
+	exportCtx.drawImage(canvas.value, left, top, width, height, 0, 0, width, height);
+
+	// 将新Canvas转换为图片数据（这里以PNG格式为例）
+	const dataURL = exportCanvas.toDataURL('image/png');
+
+	// 创建一个临时的 <a> 标签，用于下载图片
+	const a = document.createElement('a');
+	a.href = dataURL;
+	a.download = `sign-${Date.now()}.png`;
+	document.body.appendChild(a);
+	a.click();
+	document.body.removeChild(a);
+};
+
+// 获取绘制内容边界矩形的函数
+const getDrawingBounds = (): { left: number; top: number; width: number; height: number } => {
+	if (!ctx.value || !canvas.value) return { left: 0, top: 0, width: 0, height: 0 };
+	const imageData = ctx.value.getImageData(0, 0, canvas.value.width, canvas.value.height);
+	const pixels = imageData.data;
+	let minX = canvas.value.width;
+	let minY = canvas.value.height;
+	let maxX = 0;
+	let maxY = 0;
+
+	for (let i = 0; i < pixels.length; i += 4) {
+		if (pixels[i + 3] > 0) { // 只考虑透明度不为0的像素
+			const x = (i / 4) % canvas.value.width;
+			const y = Math.floor((i / 4) / canvas.value.width);
+
+			if (x < minX) minX = x;
+			if (y < minY) minY = y;
+			if (x > maxX) maxX = x;
+			if (y > maxY) maxY = y;
+		}
+	}
+
+	return {
+		left: minX,
+		top: minY,
+		width: maxX - minX + 1,
+		height: maxY - minY + 1
+	};
+};
 </script>
 <template>
-	<div class="canvas-sign">
-		<!-- 方式一 -->
-		<h3 class="text-center">canvas</h3>
-		<div class="bg-#ddd min-h-4 p-4 overflow-x-auto">
-			<canvas class="bg-transparent m-auto block" id="canvas"></canvas>
-		</div>
-		<n-button class="block w-20 h-10 mx-auto my-4 cursor-pointer" type="info" @click="exportCanvas">导出图片</n-button>
-		<h3 class="text-center mt-5">字体选择</h3>
-		<div class="flex justify-center">
-			<div class="mx-4 cursor-pointer text-blue hover:text-red font-bold text-xl" v-for="(item, i) in fontList"
-				:key="item.name" :class="index === i ? 'text-red' : ''" :style="{ 'font-family': item.name }"
-				@click="onChangeFont(i)">
-				{{ item.name }}
-			</div>
-		</div>
-		<div class="flex justify-center items-center w-80% mx-auto mt-4">
-			<n-input v-model:value="text" class="flex-1 mr-4" type=" text" placeholder="请输入签名" @input="draw($event)"
-				:maxlength="50" show-count></n-input>
-			斜体：<n-switch v-model:value="italic" @change="onChange"></n-switch>
-			粗体：<n-switch v-model:value="bold" @change="onChange"></n-switch>
-			颜色：<n-color-picker class="w-20" v-model:value="color" @update:value="onChange"></n-color-picker>
-		</div>
-		<div class="flex justify-center items-center w-80% mx-auto mt-4">
-			字号：<n-slider class="w-60 mr-4" v-model:value="fontSize" @dragend="onChange"></n-slider>
-			字母间距：<n-slider class="w-60 mr-4" v-model:value="letterSpace" @dragend="onChange"></n-slider>
-			单词/文字间距：<n-slider class="w-60" v-model:value="wordSpace" @dragend="onChange"></n-slider>
-		</div>
+	<div class="canvas-sign w-full max-w-200 mx-auto">
+		<n-grid class="mt-10" x-gap="32" y-gap="24" :cols="10">
+			<n-gi :span="10">
+				<n-input v-model:value="text" class="flex-1 mr-4 bg-#eee text-center" round size="large" type=" text"
+					placeholder="请输入签名" :maxlength="maxlength" show-count clearable @input="onChange"
+					@clear="draw('')"></n-input>
+			</n-gi>
+			<n-gi class="flex-left" :span="2">
+				<span class="pr-2">斜体</span>
+				<n-switch v-model:value="italic" @change="onChange"></n-switch>
+			</n-gi>
+			<n-gi class="flex-left" :span="2">
+				<span class="pr-2">粗体</span>
+				<n-switch v-model:value="bold" @change="onChange"></n-switch>
+			</n-gi>
+			<n-gi class="flex-left" :span="3">
+				<span class="pr-2">颜色</span>
+				<n-color-picker class="flex-1" v-model:value="color" @update:value="onChange"></n-color-picker>
+			</n-gi>
+			<n-gi class="flex-left" :span="3">
+				<span class="pr-4">字号</span>
+				<n-slider class="flex-1" :min="24" :max="120" v-model:value="fontSize" @dragend="onChange"></n-slider>
+			</n-gi>
+			<n-gi class="flex-left" :span="3">
+				<span class="pr-4">字间距</span>
+				<n-slider class="flex-1" v-model:value="letterSpace" @dragend="onChange"></n-slider>
+			</n-gi>
+			<n-gi class="flex-left" :span="3">
+				<span class="pr-4">词间距</span>
+				<n-slider class="flex-1" v-model:value="wordSpace" @dragend="onChange"></n-slider>
+			</n-gi>
+			<n-gi class="flex-left" :span="4">
+				<span class="pr-4">字体</span>
+				<n-input-group class="flex-1">
+					<n-select v-model:value="font" :options="fontList" @update:value="onChange"></n-select>
+					<div class="w-20 h-[34px] relative">
+						<n-button class="w-full h-full" type="info">上传字体</n-button>
+						<input class="w-full h-full opacity-0 absolute top-0 left-0" type="file" accept=".ttf"
+							@change="uploadFont">
+					</div>
+				</n-input-group>
+
+			</n-gi>
+			<n-gi class="flex" :span="10">
+				<div class="flex-1 bg-#eee min-h-10 py-4 px-10 overflow-x-auto rounded-l-xl">
+					<canvas class="bg-transparent m-auto block" id="canvas" ref="canvas"></canvas>
+				</div>
+				<n-button class="h-full w-20 flex justify-center items-center rounded-r-xl cursor-pointer" type="info"
+					:disabled="!text || text.trim().length === 0" @click="exportDrawing">导出</n-button>
+			</n-gi>
+		</n-grid>
 	</div>
 </template>
+
+<style scoped lang="less">
+.flex-left {
+	display: flex;
+	justify-content: flex-start;
+	align-items: center;
+}
+</style>

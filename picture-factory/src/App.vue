@@ -10,7 +10,8 @@ import { zhCN, dateZhCN } from "naive-ui";
 					<router-link to="/">图片处理</router-link> |
 					<router-link to="/import-image">大图片大数量导入</router-link> |
 					<router-link to="/canvas-font">canvas自定义字体绘制</router-link> |
-					<router-link to="/canvas-sign">生成签名图片</router-link>
+					<router-link to="/canvas-sign">生成字体图片</router-link> |
+					<router-link to="/drawing-board">画板绘制</router-link>
 				</nav>
 				<router-view />
 			</n-message-provider>

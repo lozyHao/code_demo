@@ -17,6 +17,10 @@ const routes = [
 		path: "/canvas-sign",
 		name: "canvasSign",
 		component: () => import("@/view/CanvasSign.vue")
+	}, {
+		path: "/drawing-board",
+		name: "drawingBoard",
+		component: () => import("@/view/DrawingBoard.vue")
 	}
 ];
 
