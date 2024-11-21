@@ -198,63 +198,15 @@ class CanvasDraw {
 				this.ctx.shadowOffsetX = 0;
 				this.ctx.shadowOffsetY = 0;
 
-				this.ctx.beginPath();
-				this.ctx.moveTo(bx + rounded, by);
-				this.ctx.arcTo(bx + imgWidth, by, bx + imgWidth, by + rounded, rounded);
-				this.ctx.arcTo(
-					bx + imgWidth,
-					by + imgHeight,
-					bx + imgWidth - rounded,
-					by + imgHeight,
-					rounded
-				);
-				this.ctx.arcTo(
-					bx,
-					by + imgHeight,
-					bx,
-					by + imgHeight - rounded,
-					rounded
-				);
-				this.ctx.arcTo(bx, by, bx + rounded, by, rounded);
-				this.ctx.closePath();
 				this.ctx.fillStyle = "rgb(0, 0, 0)";
+				this.ctx.beginPath();
+				this.ctx.roundRect(bx, by, imgWidth, imgHeight, rounded);
 				this.ctx.fill();
 
-				if (rounded) {
+				this.ctx.clip();
+				this.ctx.drawImage(img, bx, by, width * rotate, height * rotate);
 
-					// 主图圆角裁切
-					this.ctx.beginPath();
-					this.ctx.moveTo(bx + rounded, by);
-					this.ctx.arcTo(
-						bx + imgWidth,
-						by,
-						bx + imgWidth,
-						by + rounded,
-						rounded
-					);
-					this.ctx.arcTo(
-						bx + imgWidth,
-						by + imgHeight,
-						bx + imgWidth - rounded,
-						by + imgHeight,
-						rounded
-					);
-					this.ctx.arcTo(
-						bx,
-						by + imgHeight,
-						bx,
-						by + imgHeight - rounded,
-						rounded
-					);
-					this.ctx.arcTo(bx, by, bx + rounded, by, rounded);
-					this.ctx.closePath();
-					this.ctx.clip();
-
-					this.ctx.drawImage(img, bx, by, width * rotate, height * rotate);
-
-					// 恢复之前的绘图状态
-					this.ctx.restore();
-				}
+				this.ctx.restore();
 
 				resolve(this.canvas.toDataURL());
 			};

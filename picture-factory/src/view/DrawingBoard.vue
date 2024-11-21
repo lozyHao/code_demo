@@ -41,6 +41,7 @@ onMounted(() => {
 		isDrawing = true;
 		if (isDraw.value) {
 			startDrawing(e)
+			draw(e)
 		} else {
 			erase(e)
 		}
@@ -94,13 +95,19 @@ const draw = (e) => {
 	ctx.lineWidth = dynamicPenSize < ctx.lineWidth ? ctx.lineWidth - 0.6 : ctx.lineWidth + 0.6;
 	ctx.strokeStyle = penColor.value;
 
+	const centerX = (prevX + currentX) / 2;
+	const centerY = (prevY + currentY) / 2;
+
 	ctx.moveTo(prevX, prevY);
-	ctx.lineTo(currentX, currentY);
+	// ctx.lineTo(currentX, currentY);
+	ctx.quadraticCurveTo(centerX, centerY, currentX, currentY);
 	ctx.stroke();
 
 	prevX = currentX;
 	prevY = currentY;
 }
+
+
 // 擦除函数
 const erase = (e) => {
 	const currentX = e.clientX - canvasRect.value.left;
