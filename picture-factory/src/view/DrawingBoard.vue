@@ -24,10 +24,27 @@ let isDrawing = false;
 // 存储绘制上下文
 let ctx = null;
 
+// 画笔是否展示
+const isShowPen = ref(false)
+const eraseX = ref(0)
+const eraseY = ref(0)
+
+// 存储Canvas的边界信息
+const canvasRect = ref({ left: 0, top: 0 });
+
 // 在组件挂载时初始化Canvas
 onMounted(() => {
 	ctx = canvas.value.getContext('2d');
-	canvas.value.addEventListener('mousedown', startDrawing);
+	const rect = canvas.value.getBoundingClientRect();
+	canvasRect.value = { left: rect.left, top: rect.top };
+	canvas.value.addEventListener('mousedown', (e) => {
+		isDrawing = true;
+		if (isDraw.value) {
+			startDrawing(e)
+		} else {
+			erase(e)
+		}
+	});
 	canvas.value.addEventListener('mousemove', (e) => {
 		if (isDraw.value) {
 			draw(e)
@@ -36,23 +53,21 @@ onMounted(() => {
 		}
 	});
 	canvas.value.addEventListener('mouseup', stopDrawing);
-	// 鼠标离开了画布，停止绘制
+
+	// 鼠标进入和离开事件
 	canvas.value.addEventListener('mouseenter', () => {
-		if (!isDraw.value) {
-			isErase.value = true
-		}
+		isShowPen.value = true
 	});
 	canvas.value.addEventListener('mouseleave', () => {
-		isErase.value = false
+		isShowPen.value = false
 		stopDrawing();
 	});
 });
 
 // 鼠标按下事件处理函数
 const startDrawing = (e) => {
-	isDrawing = true;
-	const startX = e.clientX - canvas.value.getBoundingClientRect().left;
-	const startY = e.clientY - canvas.value.getBoundingClientRect().top;
+	const startX = e.clientX - canvasRect.value.left;
+	const startY = e.clientY - canvasRect.value.top;
 	prevX = startX;
 	prevY = startY;
 
@@ -61,66 +76,43 @@ const startDrawing = (e) => {
 	ctx.lineCap = "round";
 };
 
-// 贝塞尔曲线绘制
+// 绘制
 const draw = (e) => {
-	if (!isDrawing) return;
-
-	const currentX = e.clientX - canvas.value.getBoundingClientRect().left;
-	const currentY = e.clientY - canvas.value.getBoundingClientRect().top;
+	const currentX = e.clientX - canvasRect.value.left;
+	const currentY = e.clientY - canvasRect.value.top;
 
 	// 根据鼠标移动的距离计算速度，这里简单地通过两点间的距离来估算
 	const distance = Math.sqrt((currentX - prevX) ** 2 + (currentY - prevY) ** 2);
-	// 根据速度调整画笔粗细，距离越大（速度越快），画笔越细
-	const dynamicPenSize = Math.max(1, penSize.value - distance / 4);
+	const dynamicPenSize = Math.max(1, penSize.value - distance / 6);
+
+	eraseX.value = currentX - penSize.value / 2
+	eraseY.value = currentY - penSize.value / 2
+
+	if (!isDrawing) return;
 
 	ctx.beginPath();
-	ctx.lineWidth = dynamicPenSize;
+	ctx.lineWidth = dynamicPenSize < ctx.lineWidth ? ctx.lineWidth - 0.6 : ctx.lineWidth + 0.6;
 	ctx.strokeStyle = penColor.value;
 
-	// 使用贝塞尔曲线绘制
 	ctx.moveTo(prevX, prevY);
-	// 设置贝塞尔曲线的控制点，这里简单地将控制点设置为当前点和上一点的中间位置
-	const controlX = (prevX + currentX) / 2;
-	const controlY = (prevY + currentY) / 2;
-	ctx.bezierCurveTo(controlX, controlY, controlX, controlY, currentX, currentY);
+	ctx.lineTo(currentX, currentY);
 	ctx.stroke();
 
 	prevX = currentX;
 	prevY = currentY;
 }
 // 擦除函数
-const eraseX = ref(0)
-const eraseY = ref(0)
-const isErase = ref(false)
 const erase = (e) => {
+	const currentX = e.clientX - canvasRect.value.left;
+	const currentY = e.clientY - canvasRect.value.top;
 
-	const currentX = e.clientX - canvas.value.getBoundingClientRect().left;
-	const currentY = e.clientY - canvas.value.getBoundingClientRect().top;
-
-	// 获取需要擦除区域的图像数据
-	const imageData = ctx.getImageData(
-		currentX - penSize.value / 2,
-		currentY - penSize.value / 2,
-		penSize.value,
-		penSize.value
-	);
-	const pixels = imageData.data;
 
 	eraseX.value = currentX - penSize.value / 2
 	eraseY.value = currentY - penSize.value / 2
 
 	if (!isDrawing) return;
-	// 将擦除区域内像素的透明度设置为0
-	for (let i = 3; i < pixels.length; i += 4) {
-		pixels[i] = 0;
-	}
 
-	// 将修改后的图像数据放回画布
-	ctx.putImageData(
-		imageData,
-		currentX - penSize.value / 2,
-		currentY - penSize.value / 2
-	);
+	ctx.clearRect(eraseX.value, eraseY.value, penSize.value, penSize.value);
 };
 
 // 鼠标抬起事件处理函数
@@ -191,10 +183,10 @@ const getDrawingBounds = () => {
 
 <template>
 	<div>
-		<div class="relative w-250 h-150 mx-auto overflow-hidden border-1 border-solid border-#ccc">
-			<canvas class="bg-transparent relative z-1" ref="canvas" width="1000" height="600"></canvas>
-			<div v-show="isErase" class="erase bg-#00000040 border border-#00000080 border-solid absolute z-0"
-				ref="eraseRef" :style="{
+		<div class="relative w-350 h-180 mx-auto overflow-hidden border-1 border-solid border-#ccc">
+			<canvas id="canvas" class="bg-transparent relative z-1" ref="canvas" width="1400" height="720"></canvas>
+			<div v-show="isShowPen" class="erase bg-#00000040 border border-#00000080 border-solid absolute z-0"
+				ref="eraseRef" :class="isDraw ? 'rounded-full' : ''" :style="{
 					width: `${penSize}px`,
 					height: `${penSize}px`,
 					left: `${eraseX}px`,
@@ -202,7 +194,7 @@ const getDrawingBounds = () => {
 				}"></div>
 		</div>
 
-		<div class="w-250 mx-auto mt-10">
+		<div class="w-350 mx-auto mt-10">
 			<n-grid x-gap="32" y-gap="24" :cols="12">
 				<n-gi class="flex-left" :span="3">
 					<span class="pr-4">画笔颜色</span>
@@ -234,6 +226,10 @@ const getDrawingBounds = () => {
 </template>
 
 <style scoped lang="less">
+#canvas {
+	will-change: transform;
+}
+
 .flex-left {
 	display: flex;
 	justify-content: flex-start;
